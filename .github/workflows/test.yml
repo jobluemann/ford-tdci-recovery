@@ -1,0 +1,36 @@
+name: demo-test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  smoke-test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.9", "3.12"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run demo-mode smoke test (simulated ECU)
+        run: |
+          python ford_recovery.py --demo | tee demo_output.txt
+          grep -q "P2453" demo_output.txt
+          grep -q "Demo complete" demo_output.txt
+
+      - name: Verify backup snapshot was written
+        run: |
+          ls backups/*.json
+          grep -q '"vin"' backups/*.json
+          grep -q '"fault_codes"' backups/*.json

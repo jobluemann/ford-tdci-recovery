@@ -1,5 +1,7 @@
 # ford-tdci-recovery
 
+[![demo-test](https://github.com/YOUR-USERNAME/ford-tdci-recovery/actions/workflows/test.yml/badge.svg)](https://github.com/YOUR-USERNAME/ford-tdci-recovery/actions/workflows/test.yml)
+
 Backup-first recovery diagnostics for **Ford 2.0 TDCi** vehicles (Kuga Mk2,
 Focus Mk3 and related) after a **battery replacement or module power loss** —
 the known condition where the PCM loses its adaptations and the car drives
