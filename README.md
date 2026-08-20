@@ -10,11 +10,46 @@ knowledge base**, so owners stop paying dealer diagnostic fees to rediscover
 faults that are already documented as standard problems on their model.
 
 Runs on **Windows (portable, no admin install)** and **Linux Mint**, over an
-**ELM327 adapter via USB or Bluetooth**. One Python file to launch, one
-dependency (`pyserial`). See `docs/ARCHITECTURE.md` for the vision.
+**ELM327 adapter via USB or Bluetooth**. GUI included — no command line
+needed. One dependency (`pyserial`). See `docs/ARCHITECTURE.md` for the vision.
 
-## Suite features (v0.2)
+## See it running
 
+Every screenshot below is the **real app**, captured by
+`docs/make_screenshots.py` against the built-in simulated car:
+
+![Main window — simulation mode, no hardware needed](docs/screenshots/01_main_connected.png)
+
+![Fault codes + full module scan — including the modules the dashboard hides](docs/screenshots/02_fault_codes_module_scan.png)
+
+![AI assistant answering a real owner symptom, grounded in the known-issues KB with sources](docs/screenshots/03_ai_diagnosis.png)
+
+A full end-to-end session (backup → module scan → KB verdicts → live AI
+diagnoses of five real faults) is in
+[docs/EXAMPLE_SESSION.md](docs/EXAMPLE_SESSION.md) — regenerate it any time
+with `python example_session.py`.
+
+## For mechanics: the 2-minute AI setup
+
+The AI assistant is free and takes two minutes to switch on — no command
+line, no environment variables:
+
+1. In the app, click **AI Setup**.
+2. Follow the on-screen link to **console.groq.com**, sign in, create a free
+   API key (no credit card).
+3. Paste the key into the box, press **Save + Test**.
+4. Green ✓ — done. The key is stored locally on the laptop
+   (`data/ai_config.json`, git-ignored) and remembered forever.
+
+The assistant then runs a two-model pipeline: a fast model interrogates the
+gathered KB/forum evidence first, then a reasoning model (Qwen) writes the
+diagnosis — always grounded in the sourced known-issues database, never
+guessing. The offline symptom lookup works with no key at all.
+
+## Suite features (v0.4)
+
+- **Desktop GUI** (`python gui_app.py`) — every feature is a button;
+  simulation mode lets you try the whole suite with no car and no adapter.
 - **Backup before anything else** — snapshots all readable vehicle state to
   timestamped JSON; clearing codes is refused until a backup exists.
 - **Fault-code decoding** with Ford DPF-specific descriptions.
@@ -28,7 +63,10 @@ dependency (`pyserial`). See `docs/ARCHITECTURE.md` for the vision.
   **source links**.
 - **Forum/RSS symptom search** across your configured feeds, with offline
   cache.
-- **Optional AI assistant** (any OpenAI-compatible endpoint, VIN stripped).
+- **AI assistant with in-app setup** — click "AI Setup", paste a free Groq
+  key, done. Two-model pipeline (fast research model → Qwen diagnostics),
+  auto-grounded in the KB + forum evidence, VIN stripped, reasoning hidden.
+  Any OpenAI-compatible endpoint works (`.env.example` has presets).
 - **Community data platform** — `site/` drops onto any PHP host (no Node):
   anonymized opt-in reports power a shared fault database.
 - **Live DPF differential pressure** readout with CSV logging.
@@ -48,10 +86,13 @@ dependency (`pyserial`). See `docs/ARCHITECTURE.md` for the vision.
 
 ```bash
 pip install -r requirements.txt   # just pyserial
-python ford_recovery.py --demo    # try it with a simulated ECU, no car needed
-python ford_recovery.py           # real adapter: pick the port from the list
+python gui_app.py                 # the app (default: simulated car — no hardware)
+python gui_app.py --real          # the app on a real ELM327 adapter
+python ford_recovery.py --demo    # CLI demo with a simulated ECU
+python ford_recovery.py           # CLI on a real adapter: pick the port
 python ford_recovery.py --port COM5          # Windows, skip port selection
 python ford_recovery.py --port /dev/rfcomm0  # Linux Mint Bluetooth
+python example_session.py         # full example session -> docs/EXAMPLE_SESSION.md
 ```
 
 No admin rights are needed to run it on Windows — any Python 3.8+ works,
@@ -81,8 +122,12 @@ cheap Bluetooth adapters are HS-CAN only.
 ## Project layout
 
 ```
-ford_recovery.py        entry point (diagnostics/backup)
+gui_app.py              desktop GUI entry point (simulation mode by default)
+ford_recovery.py        CLI entry point (diagnostics/backup)
+example_session.py      end-to-end example -> docs/EXAMPLE_SESSION.md
+demo_fake_car.py        scripted "owner's car" demo (4 known faults)
 pcm_flasher.py          expert UDS reflash entry point (you supply seed/key + firmware)
+ftr/gui.py              tkinter app — all features as buttons + AI Setup dialog
 ftr/elm327.py           ELM327 transport (USB/Bluetooth serial) + simulator
 ftr/obd.py              DTC / VIN / Mode-09 / PID decoding
 ftr/backup.py           full readable-state snapshot (JSON)
@@ -93,7 +138,8 @@ ftr/flasher.py          flash orchestration + scripted simulator
 ftr/modules.py          Ford module map + full-vehicle scan + simulator
 ftr/known_issues.py     multi-vehicle KB loader + symptom matcher
 ftr/feeds.py            forum/RSS symptom search (stdlib, cached)
-ftr/aichat.py           optional AI assistant (Grok / OpenAI-compatible)
+ftr/aichat.py           AI assistant: two-model pipeline, auto-grounding, presets
+ftr/aiconfig.py         saved AI settings (no env vars needed; git-ignored)
 ftr/share.py            anonymized community report builder
 ftr/server.py           HTTP bridge for the PWA (--serve)
 data/known_issues/      one JSON per vehicle — the scaling unit
@@ -105,6 +151,8 @@ docs/POST_BATTERY_PROCEDURE.md
 docs/PCM_REPLACEMENT_GUIDE.md   when the module itself has failed
 docs/DIY_REFLASH_NOTES.md       expert in-vehicle reflash: inputs & safety
 docs/ARCHITECTURE.md            suite design + scaling
+docs/EXAMPLE_SESSION.md         full example session with live AI diagnoses
+docs/screenshots/               real app captures (docs/make_screenshots.py)
 backups/                your snapshots land here (git-ignored)
 ```
 
