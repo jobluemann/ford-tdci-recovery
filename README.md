@@ -78,6 +78,7 @@ ftr/obd.py              DTC / VIN / Mode-09 / PID decoding
 ftr/backup.py           full readable-state snapshot (JSON)
 ftr/cli.py              interactive menu
 docs/POST_BATTERY_PROCEDURE.md
+docs/PCM_REPLACEMENT_GUIDE.md   when the module itself has failed
 backups/                your snapshots land here (git-ignored)
 ```
 
