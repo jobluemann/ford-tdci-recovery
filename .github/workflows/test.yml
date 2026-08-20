@@ -34,3 +34,20 @@ jobs:
           ls backups/*.json
           grep -q '"vin"' backups/*.json
           grep -q '"fault_codes"' backups/*.json
+
+      - name: Run fake-car pipeline test (owner symptom profile)
+        run: |
+          python demo_fake_car.py | tee fake_car_output.txt
+          # module scan must surface the hidden codes
+          grep -q "P062F" fake_car_output.txt   # PCM EEPROM fault
+          grep -q "P0776" fake_car_output.txt   # TCM / Powershift
+          grep -q "P1889" fake_car_output.txt   # DEM / silent AWD failure
+          # all four known issues must match the owner's symptoms
+          grep -q "DPF differential pressure sensor" fake_car_output.txt
+          grep -q "Powershift 6DCT450" fake_car_output.txt
+          grep -q "AWD (Haldex-type coupling) pump failure" fake_car_output.txt
+          grep -q "PCM loses adaptations" fake_car_output.txt
+          grep -q "Four separate known issues" fake_car_output.txt
+
+      - name: Run reflash framework demo (simulated flash)
+        run: python pcm_flasher.py --demo | grep -q "demo flash OK"
