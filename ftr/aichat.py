@@ -24,8 +24,9 @@ import urllib.request
 PROVIDERS = {
     # truly free, fully local — no key needed (run: ollama pull llama3.1:8b)
     "ollama": ("http://localhost:11434/v1", "llama3.1:8b"),
-    # free tier after signup (OpenAI-compatible)
-    "groq": ("https://api.groq.com/openai/v1", "llama-3.1-8b-instant"),
+    # free tier after signup (OpenAI-compatible). Qwen on Groq is the default
+    # diagnostics brain; llama-3.1-8b-instant is the fast research model.
+    "groq": ("https://api.groq.com/openai/v1", "qwen/qwen3.6-27b"),
     # free tier via Google AI Studio (OpenAI-compatible endpoint)
     "gemini": ("https://generativelanguage.googleapis.com/v1beta/openai/", "gemini-2.0-flash"),
     # xAI Grok API — paid product (occasional free-credit promos)
@@ -39,10 +40,14 @@ PROVIDERS = {
 # roles fall back to FTR_AI_PROVIDER / AI_API_KEY / AI_MODEL.
 #   FTR_RESEARCH_PROVIDER / FTR_RESEARCH_MODEL / FTR_RESEARCH_API_KEY
 #   FTR_DIAG_PROVIDER     / FTR_DIAG_MODEL     / FTR_DIAG_API_KEY
-# Example (one OpenRouter key, two models):
-#   FTR_RESEARCH_PROVIDER=openrouter FTR_RESEARCH_MODEL=meta-llama/llama-3.1-8b-instruct
-#   FTR_DIAG_PROVIDER=openrouter     FTR_DIAG_MODEL=qwen/qwen-2.5-7b-instruct
-#   AI_API_KEY=<openrouter key>      (shared key used by both roles)
+# Recommended FREE recipe — one Groq key (console.groq.com), two models:
+#   FTR_RESEARCH_PROVIDER=groq FTR_RESEARCH_MODEL=llama-3.1-8b-instant
+#   FTR_DIAG_PROVIDER=groq     FTR_DIAG_MODEL=qwen/qwen3.6-27b
+#   GROQ_API_KEY=<groq key>    (shared key used by both roles)
+# Alternative (one OpenRouter key, openrouter.ai — :free models exist):
+#   FTR_RESEARCH_PROVIDER=openrouter FTR_RESEARCH_MODEL=meta-llama/llama-3.1-8b-instruct:free
+#   FTR_DIAG_PROVIDER=openrouter     FTR_DIAG_MODEL=qwen/qwen-2.5-7b-instruct:free
+#   AI_API_KEY=<openrouter key>
 
 
 def _settings(role=None):
@@ -56,6 +61,8 @@ def _settings(role=None):
              os.environ.get("AI_MODEL", model))
     key = (os.environ.get(prefix + "API_KEY") or
            os.environ.get("AI_API_KEY", ""))
+    if not key and provider == "groq":
+        key = os.environ.get("GROQ_API_KEY", "")  # qwen-groq skill convention
     if provider == "ollama" and not key:
         key = "ollama"  # local server ignores it, but the header must exist
     return provider, base, model, key
@@ -145,7 +152,9 @@ def chat(messages, kb_text="", snapshot_path=None, role="diag"):
     req = urllib.request.Request(
         f"{base}/chat/completions", data=body,
         headers={"Content-Type": "application/json",
-                 "Authorization": f"Bearer {key}"})
+                 "Authorization": f"Bearer {key}",
+                 # Groq/Cloudflare rejects requests with no UA (error 1010)
+                 "User-Agent": "ford-tdci-recovery/1.0"})
     with urllib.request.urlopen(req, timeout=60) as r:
         data = json.loads(r.read())
     return data["choices"][0]["message"]["content"]
