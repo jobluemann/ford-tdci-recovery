@@ -1,0 +1,166 @@
+{
+  "vehicle": "Ford Kuga Mk2 2.0 TDCi (2012-2019, incl. Focus Mk3 / C-Max platform relatives)",
+  "disclaimer": "Community-sourced known issues. 'known_issue: yes' means widely documented across owner forums and specialist repairers — it is NOT a guarantee your car has this fault. Verify with diagnostics before buying parts. Contribute corrections via pull request with a source link.",
+  "issues": [
+    {
+      "id": "dpf-pressure-sensor-circuit",
+      "title": "DPF differential pressure sensor hoses / wiring failure",
+      "known_issue": "yes",
+      "confidence": "high",
+      "systems": ["engine", "emissions"],
+      "symptoms": ["limp mode", "loss of power", "DPF warning", "engine malfunction light"],
+      "dtcs": ["P2002", "P2452", "P2453", "P2454", "P2455", "P2463", "P246C", "P242F"],
+      "likely_causes": [
+        "Split or chafed rubber hoses between sensor and DPF pipes (most common)",
+        "Soot-blocked metal take-off pipe nipple on the exhaust",
+        "Broken conductor inside the loom near the sensor plug (often blue wire with tracer)",
+        "Failed differential pressure sensor (only after the above are excluded)",
+        "Genuinely soot/ash-loaded DPF"
+      ],
+      "checks": [
+        "Read live DPF differential pressure: ~0-3 kPa at idle is healthy",
+        "Inspect both hoses end-to-end; blow through metal nipples",
+        "Continuity-test loom wires, do not trust visual inspection"
+      ],
+      "fixes": ["Replace hoses (silicone upgrade)", "Clean take-off nipples", "Repair loom", "OE-grade sensor", "FORScan: reset DPF + sensor learned values"],
+      "sources": ["Project failure map: dpf_failure_diagram.html", "kugaownersclub.co.uk DPF threads"]
+    },
+    {
+      "id": "powershift-6dct450-harsh-shift",
+      "title": "Powershift 6DCT450 (wet-clutch auto) harsh/scratching shifts 1-2-3",
+      "known_issue": "yes",
+      "confidence": "high",
+      "systems": ["transmission"],
+      "symptoms": ["scratching noise between gears 1-2-3", "jerky shifts", "banging into gear", "hesitation pulling away", "jerking from standstill"],
+      "dtcs": [],
+      "likely_causes": [
+        "Mechatronic valve body / hydraulic pressure loss (most documented)",
+        "Clutch pack wear (internal spring system collapse)",
+        "Debris blocking mechatronic oil pathways",
+        "TCU software calibration (reflash can improve shift quality)",
+        "Degraded/incorrect transmission fluid"
+      ],
+      "checks": [
+        "Read TCM codes (module 7E1) - not visible on the dashboard",
+        "Check fluid condition and level procedure (temperature-dependent)",
+        "Note whether symptoms are worse cold (hydraulic/mechatronic) or hot (clutch)"
+      ],
+      "fixes": ["TCU calibration update", "Fluid service", "Mechatronic repair/replacement", "Clutch kit (specialist rebuild, ~£1,000-2,500 in UK references)"],
+      "sources": [
+        "https://eco-torque.co.uk/blogs/news/ford-powershift-ford-powershift-problems-uk",
+        "https://www.kugaownersclub.co.uk/threads/understanding-powershift-problems.29075/"
+      ]
+    },
+    {
+      "id": "awd-haldex-pump-silent-failure",
+      "title": "AWD (Haldex-type coupling) pump failure with NO dashboard warning",
+      "known_issue": "yes",
+      "confidence": "high",
+      "systems": ["drivetrain", "awd"],
+      "symptoms": ["AWD not engaging", "front wheels spin in slippery conditions", "no warning light on dashboard", "vehicle behaves as front-wheel drive"],
+      "dtcs": ["P1889", "C1112"],
+      "likely_causes": [
+        "Failed AWD pre-charge pump at the rear differential (filter gauze clogged from missed coupling oil services)",
+        "DEM (AWD control module) internal failure",
+        "Broken earth strap / blown fuse / corroded connector at the pump",
+        "Coupling oil never changed (service item often skipped)"
+      ],
+      "checks": [
+        "Scan the DEM module directly - dash shows nothing; codes like P1889 sit in the module only",
+        "Check pump fuse and earth strap before condemning parts",
+        "DEM is often on the MS-CAN bus - adapter needs an HS/MS-CAN switch to see it"
+      ],
+      "fixes": ["Pump + filter kit (e.g. OE 8V41-4C019-AA family) - NOTE: new pump requires a learn procedure via diagnostics", "DEM repair (specialist rebuilders exist)", "Coupling oil + filter service"],
+      "sources": [
+        "https://www.go-parts.com/garage/obd-p1889-ford-kuga-2012-2019-dw10f-2.0l",
+        "https://www.kugaownersclub.co.uk/threads/awd-malfunction-haldex-servicing-info.6955/",
+        "https://eco-torque.co.uk/products/haldex-pump-gen-2-3-rear-differential-with-filter-kit-ford-volvo-8v41-4c019-aa-30783079"
+      ]
+    },
+    {
+      "id": "coolant-in-oil-paths",
+      "title": "Coolant / water contamination in engine oil",
+      "known_issue": "yes",
+      "confidence": "medium",
+      "systems": ["engine", "cooling"],
+      "symptoms": ["mayonnaise under oil filler cap", "oil level rising", "coolant level dropping", "white emulsion on dipstick"],
+      "dtcs": [],
+      "likely_causes": [
+        "Oil cooler seal/housing failure (O-ring goes brittle, housing cracks at the seal seat - documented on this engine family)",
+        "EGR cooler internal failure (coolant loss with bubbles in expansion tank)",
+        "Head gasket (specialists report it is RARE on this engine - suspect it last)",
+        "Water pump / timing cover seepage (external, not mixing)"
+      ],
+      "checks": [
+        "Oil cooler off and inspect seal seat for cracks before anything else (cheapest, most likely)",
+        "Bubbles in expansion tank while running = EGR cooler or combustion gas path",
+        "Coolant system pressure test"
+      ],
+      "fixes": ["Oil cooler seal/housing", "EGR cooler", "Head gasket only after both coolers excluded"],
+      "sources": [
+        "https://www.kugaownersclub.co.uk/threads/egr-cooler-failure-bubbles-in-coolant.28746/",
+        "https://forums.ross-tech.com/index.php?threads/24255/"
+      ]
+    },
+    {
+      "id": "pcm-eeprom-after-battery-loss",
+      "title": "PCM loses adaptations / settings after battery replacement",
+      "known_issue": "yes",
+      "confidence": "medium",
+      "systems": ["electrical", "pcm"],
+      "symptoms": ["laggy throttle after battery swap", "unstable idle", "multiple new fault codes", "adaptations refuse to re-learn"],
+      "dtcs": ["P062F", "U0300", "P0562"],
+      "likely_causes": [
+        "BMS (battery monitoring) not reset after new battery - charging logic wrong",
+        "Voltage dip during replacement corrupted a marginal EEPROM/flash cell",
+        "Failing PCM flash memory exposed by the power cycle"
+      ],
+      "checks": [
+        "Manual BMS reset (high beams x5, brake x3 within 10s, battery lamp flashes x3)",
+        "Idle/throttle relearn drive cycle",
+        "If codes persist after correct resets: PCM bench test (see docs/PCM_REPLACEMENT_GUIDE.md)"
+      ],
+      "fixes": ["BMS reset + relearn (free)", "PCM bench repair/re-image (specialist)", "Donor PCM + program-to-VIN (see guide)"],
+      "sources": ["docs/POST_BATTERY_PROCEDURE.md", "docs/PCM_REPLACEMENT_GUIDE.md"]
+    },
+    {
+      "id": "egr-valve-clogging",
+      "title": "EGR valve / intake carbon clogging",
+      "known_issue": "yes",
+      "confidence": "medium",
+      "systems": ["engine", "emissions"],
+      "symptoms": ["rough idle", "hesitation", "black smoke", "limp mode under load"],
+      "dtcs": ["P0401", "P0402", "P0403"],
+      "likely_causes": ["Carbon buildup on EGR valve and intake swirl flaps", "Short-journey driving pattern"],
+      "checks": ["Live EGR position vs commanded", "Intake inspection"],
+      "fixes": ["Clean/replace EGR valve", "Intake decoke"],
+      "sources": ["community-reported; source link welcome via PR"]
+    },
+    {
+      "id": "injector-seal-blowby",
+      "title": "Injector seal failure ('chuffing') and carbon buildup around injectors",
+      "known_issue": "yes",
+      "confidence": "medium",
+      "systems": ["engine", "fuel"],
+      "symptoms": ["chuffing/ticking sound on acceleration", "diesel smell in cabin", "black carbon around injector base", "rough running"],
+      "dtcs": [],
+      "likely_causes": ["Copper injector washer/seal failure", "Injector clamp loosening"],
+      "checks": ["Visual around each injector with engine running", "Listen for chuff at idle"],
+      "fixes": ["New seals/washers, clean seats", "Re-torque clamps to spec"],
+      "sources": ["community-reported; source link welcome via PR"]
+    },
+    {
+      "id": "dmf-rattle",
+      "title": "Dual-mass flywheel rattle / judder",
+      "known_issue": "yes",
+      "confidence": "low",
+      "systems": ["drivetrain"],
+      "symptoms": ["rattle at idle that disappears with clutch pressed", "judder on pull-away", "vibration at low rpm"],
+      "dtcs": [],
+      "likely_causes": ["DMF wear (age/mileage)", "Aggressive clutch use / towing"],
+      "checks": ["Rattle test at idle with clutch in/out", "Specialist free-play check"],
+      "fixes": ["DMF + clutch replacement (do both together)"],
+      "sources": ["community-reported; source link welcome via PR"]
+    }
+  ]
+}

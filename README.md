@@ -2,29 +2,38 @@
 
 [![demo-test](https://github.com/jobluemann/ford-tdci-recovery/actions/workflows/test.yml/badge.svg)](https://github.com/jobluemann/ford-tdci-recovery/actions/workflows/test.yml)
 
-Backup-first recovery diagnostics for **Ford 2.0 TDCi** vehicles (Kuga Mk2,
-Focus Mk3 and related) after a **battery replacement or module power loss** —
-the known condition where the PCM loses its adaptations and the car drives
-"laggy" with faults it never had before.
+Backup-first **open-source diagnostic suite** for **Ford 2.0 TDCi** vehicles
+(Kuga Mk2, Focus Mk3 and platform relatives). Born from the known condition
+where the PCM loses its adaptations after a **battery replacement** — now
+grown into a full-vehicle tool with a curated, sourced **known-issues
+knowledge base**, so owners stop paying dealer diagnostic fees to rediscover
+faults that are already documented as standard problems on their model.
 
 Runs on **Windows (portable, no admin install)** and **Linux Mint**, over an
 **ELM327 adapter via USB or Bluetooth**. One Python file to launch, one
-dependency (`pyserial`).
+dependency (`pyserial`). See `docs/ARCHITECTURE.md` for the vision.
 
-## What it does
+## Suite features (v0.2)
 
-- **Backup before anything else** — snapshots all readable vehicle state
-  (VIN, calibration ID, CVN, ECU name, MIL/readiness, supported-PID map,
-  stored fault codes, raw DPF-pressure sample) to a timestamped JSON file.
-  Clearing codes is refused until a backup exists in the session.
-- **Fault-code decoding** with Ford DPF-specific descriptions
-  (P2002, P2452–P2455, P2463, P246C, P242F, plus post-battery U/P codes).
-- **Live DPF differential pressure** readout (Mode-22 PID is configurable).
-- **Post-battery recovery checklist** — BMS reset (including the manual
-  high-beam/brake-pedal method), idle/throttle relearn, steering-angle
-  reset, and DPF learned-value reset guidance. See
-  `docs/POST_BATTERY_PROCEDURE.md`.
-- **Raw command mode** for any custom PID.
+- **Backup before anything else** — snapshots all readable vehicle state to
+  timestamped JSON; clearing codes is refused until a backup exists.
+- **Fault-code decoding** with Ford DPF-specific descriptions.
+- **Full module scan** — PCM, TCM, ABS/ESP, cluster, BCM, airbag, and the
+  DEM (AWD) module, with per-module UDS fault codes the dashboard never
+  shows. (MS-CAN modules need an adapter with an HS/MS-CAN switch.)
+- **Known-issues lookup** — your DTCs + plain-English symptoms are ranked
+  against a curated KB (Powershift 6DCT450 harsh shifts, silent AWD pump
+  failure, coolant-in-oil paths, DPF sensor circuit, and more), every entry
+  marked `yes/no known issue` with confidence, ranked causes, checks and
+  **source links**.
+- **Forum/RSS symptom search** across your configured feeds, with offline
+  cache.
+- **Optional AI assistant** (any OpenAI-compatible endpoint, VIN stripped).
+- **Community data platform** — `site/` drops onto any PHP host (no Node):
+  anonymized opt-in reports power a shared fault database.
+- **Live DPF differential pressure** readout with CSV logging.
+- **Expert UDS reflash framework** (`pcm_flasher.py`) — bring your own
+  seed/key and firmware; wired-only guardrails.
 
 ## What it deliberately does not do
 

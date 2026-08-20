@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Kuga 2.0 TDCi — Community Diagnostic Reports</title>
+<style>
+  body { font-family: Segoe UI, Arial, sans-serif; background:#f4f6f8; color:#1c2733; margin:0; padding:24px; }
+  h1 { font-size:20px; margin:0 0 4px; }
+  .sub { color:#5a6b7b; font-size:13px; margin-bottom:16px; }
+  table { border-collapse:collapse; width:100%; max-width:1000px; background:#fff; }
+  th, td { border:1px solid #dde4ea; padding:8px 10px; font-size:13px; text-align:left; }
+  th { background:#eaf1f7; }
+  .muted { color:#7d8b99; font-size:12px; }
+</style>
+</head>
+<body>
+<h1>Community Diagnostic Reports</h1>
+<div class="sub">Anonymized reports shared by ford-tdci-recovery users. No VINs are stored — only a one-way vehicle reference.</div>
+<table id="t">
+  <thead><tr><th>Submitted (UTC)</th><th>ECU</th><th>Calibration</th><th>Fault codes</th><th>Matched known issues</th><th>Vehicle ref</th></tr></thead>
+  <tbody></tbody>
+</table>
+<p class="muted" id="status">loading…</p>
+<script>
+fetch('collect.php?list=1')
+  .then(r => r.json())
+  .then(data => {
+    const tb = document.querySelector('#t tbody');
+    document.getElementById('status').textContent = data.count + ' report(s) collected';
+    for (const r of data.reports.reverse()) {
+      const tr = document.createElement('tr');
+      tr.innerHTML =
+        '<td>' + (r.submitted_utc || '') + '</td>' +
+        '<td>' + (r.ecu_name || '?') + '</td>' +
+        '<td>' + (r.calibration_id || '?') + '</td>' +
+        '<td>' + (r.fault_codes || []).join(', ') + '</td>' +
+        '<td>' + (r.matched_known_issues || []).join(', ') + '</td>' +
+        '<td class="muted">' + (r.vehicle_ref || '—') + '</td>';
+      tb.appendChild(tr);
+    }
+  })
+  .catch(e => document.getElementById('status').textContent = 'failed to load: ' + e);
+</script>
+</body>
+</html>
