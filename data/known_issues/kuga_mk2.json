@@ -57,7 +57,7 @@
       "known_issue": "yes",
       "confidence": "high",
       "systems": ["drivetrain", "awd"],
-      "symptoms": ["AWD not engaging", "front wheels spin in slippery conditions", "no warning light on dashboard", "vehicle behaves as front-wheel drive"],
+      "symptoms": ["AWD not engaging", "all-wheel drive not engaging", "front wheels spin in slippery conditions", "no warning light on dashboard", "vehicle behaves as front-wheel drive"],
       "dtcs": ["P1889", "C1112"],
       "likely_causes": [
         "Failed AWD pre-charge pump at the rear differential (filter gauze clogged from missed coupling oil services)",
@@ -83,7 +83,7 @@
       "known_issue": "yes",
       "confidence": "medium",
       "systems": ["engine", "cooling"],
-      "symptoms": ["mayonnaise under oil filler cap", "oil level rising", "coolant level dropping", "white emulsion on dipstick"],
+      "symptoms": ["mayonnaise under oil filler cap", "oil level rising", "coolant level dropping", "white emulsion on dipstick", "coolant mixing into oil", "coolant in oil"],
       "dtcs": [],
       "likely_causes": [
         "Oil cooler seal/housing failure (O-ring goes brittle, housing cracks at the seal seat - documented on this engine family)",

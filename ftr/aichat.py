@@ -20,6 +20,8 @@ Privacy: context is the known-issues KB plus a snapshot with the VIN REMOVED.
 import json
 import os
 import re
+import time
+import urllib.error
 import urllib.request
 
 PROVIDERS = {
@@ -150,6 +152,8 @@ def chat(messages, kb_text="", snapshot_path=None, role="diag"):
     body = json.dumps({
         "model": model,
         "messages": [{"role": "system", "content": system}] + messages,
+        # reasoning models think long before answering — give them room
+        "max_tokens": 6000,
     }).encode()
     req = urllib.request.Request(
         f"{base}/chat/completions", data=body,
@@ -157,14 +161,27 @@ def chat(messages, kb_text="", snapshot_path=None, role="diag"):
                  "Authorization": f"Bearer {key}",
                  # Groq/Cloudflare rejects requests with no UA (error 1010)
                  "User-Agent": "ford-tdci-recovery/1.0"})
-    with urllib.request.urlopen(req, timeout=60) as r:
-        data = json.loads(r.read())
+    for attempt in (1, 2):
+        try:
+            with urllib.request.urlopen(req, timeout=90) as r:
+                data = json.loads(r.read())
+            break
+        except urllib.error.HTTPError as e:
+            if e.code == 429 and attempt == 1:
+                time.sleep(60)  # free-tier tokens/minute window — wait it out
+                continue
+            raise
     content = data["choices"][0]["message"]["content"]
     # reasoning models (e.g. Qwen on Groq) emit <think>…</think> — hide the
     # chain-of-thought, show only the answer
     if "<think>" in content:
         content = re.sub(r"<think>.*?</think>", "", content,
                          flags=re.DOTALL).strip()
+        if "<think>" in content:  # unclosed tag = ran out of tokens mid-think
+            content = content.split("<think>")[0].strip()
+        if not content:
+            content = ("(AI thought too long and its answer was cut off — "
+                       "please ask again.)")
     return content
 
 
@@ -202,4 +219,5 @@ def chat_grounded(question, history=None, snapshot_path=None, vehicle=None):
         grounded += ("\n\n[RESEARCH-STAGE NOTES — use as supporting analysis]\n"
                      + research_notes)
     messages = (history or []) + [{"role": "user", "content": grounded}]
-    return chat(messages, snapshot_path=snapshot_path, role="diag"), evidence
+    return chat(messages, kb_text=evidence, snapshot_path=snapshot_path,
+                role="diag"), evidence
