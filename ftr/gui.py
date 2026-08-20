@@ -217,13 +217,15 @@ class DiagApp(tk.Tk):
             return
 
         def work():
-            import json as _json
             from . import aichat
-            kb = known_issues.load_kb()
             try:
-                reply = aichat.chat([{"role": "user", "content": q}],
-                                    kb_text=_json.dumps(kb["issues"])[:8000])
+                reply, evidence = aichat.chat_grounded(q)
             except Exception as e:
-                reply = f"(request failed: {e})"
+                reply, evidence = f"(request failed: {e})", ""
+            if evidence:
+                self.log("--- auto-gathered evidence ---")
+                for line in evidence.split("\n"):
+                    self.log(line)
+                self.log("------------------------------")
             self.log("ai> " + reply)
         self._worker(work)

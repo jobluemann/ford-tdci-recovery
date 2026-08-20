@@ -31,7 +31,7 @@
       "known_issue": "yes",
       "confidence": "high",
       "systems": ["transmission"],
-      "symptoms": ["scratching noise between gears 1-2-3", "jerky shifts", "banging into gear", "hesitation pulling away", "jerking from standstill"],
+      "symptoms": ["scratching noise between gears 1-2-3", "gears scratching 1-2-3", "gears scratch", "jerky shifts", "banging into gear", "hesitation pulling away", "jerking from standstill"],
       "dtcs": ["P0776", "P0777", "P0796"],
       "likely_causes": [
         "Mechatronic valve body / hydraulic pressure loss (most documented)",

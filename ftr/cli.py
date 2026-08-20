@@ -140,19 +140,22 @@ def cmd_forum_search():
 
 
 def cmd_ai_chat(snapshot_path):
-    kb = known_issues.load_kb()
-    kb_text = json.dumps(kb["issues"])[:8000]
     history = []
-    print("AI assistant ('quit' to exit). VIN is stripped from context.\n")
+    print("AI assistant with auto-research ('quit' to exit). VIN is stripped.\n")
     while True:
         q = input("you> ").strip()
         if q.lower() in ("quit", "exit", ""):
             break
-        history.append({"role": "user", "content": q})
         try:
-            reply = aichat.chat(history, kb_text=kb_text, snapshot_path=snapshot_path)
+            reply, evidence = aichat.chat_grounded(q, history=history,
+                                                   snapshot_path=snapshot_path)
         except Exception as e:
-            reply = f"(request failed: {e})"
+            reply, evidence = f"(request failed: {e})", ""
+        if evidence:
+            print("--- auto-gathered evidence ---")
+            print(evidence)
+            print("------------------------------")
+        history.append({"role": "user", "content": q})
         history.append({"role": "assistant", "content": reply})
         print(f"\nai> {reply}\n")
 
