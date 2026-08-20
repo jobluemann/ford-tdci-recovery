@@ -119,6 +119,23 @@ Bluetooth adapter.
 regeneration via FORScan need an ELM327 with an **HS/MS-CAN switch**; many
 cheap Bluetooth adapters are HS-CAN only.
 
+## WordPress plugin (showcase + community collector)
+
+`wordpress/tdci-recovery-hub/` is a self-contained WordPress plugin —
+**TDCi Recovery Hub** — for showcasing this project on a WordPress site
+(built for jobluemann.com):
+
+- On activation it creates **its own page** (`/ford-tdci-diagnostics`) —
+  your homepage and theme are never touched.
+- Embeds the phone app (PWA) so visitors can run the known-issue lookup
+  in their browser, and shows the real app screenshots.
+- Provides the anonymous, VIN-rejecting community fault collector as a
+  WordPress REST endpoint (`/wp-json/tdci/v1/report`), with an admin
+  "TDCi Reports" list.
+
+Ready-to-upload zip: `dist/tdci-recovery-hub.zip` (rebuild with
+`python wordpress/build_zip.py`). Install via *Plugins → Add New → Upload*.
+
 ## Project layout
 
 ```
@@ -143,7 +160,9 @@ ftr/aiconfig.py         saved AI settings (no env vars needed; git-ignored)
 ftr/share.py            anonymized community report builder
 ftr/server.py           HTTP bridge for the PWA (--serve)
 data/known_issues/      one JSON per vehicle — the scaling unit
-site/                   PHP collector + viewer + PWA (no Node needed)
+site/                   PHP collector + viewer + PWA (plain shared hosting)
+wordpress/              TDCi Recovery Hub WordPress plugin + build_zip.py
+dist/                   ready-to-upload WordPress plugin zip
 dpf_tool.py             legacy standalone DPF tool (superseded by the suite)
 dpf_failure_diagram.html  DPF failure-point map
 config/                 flash plan skeletons (placeholder values — verify!)
