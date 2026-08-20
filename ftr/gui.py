@@ -53,6 +53,8 @@ class DiagApp(tk.Tk):
             ("4. Live DPF (start/stop)", self.do_live),
             ("5. Symptom lookup", self.do_symptoms),
             ("6. Post-battery checklist", self.do_checklist),
+            ("7. Forum/RSS search", self.do_feeds),
+            ("8. AI assistant", self.do_ai),
         ]:
             tk.Button(btns, text=label, command=fn).pack(side="left", padx=3)
 
@@ -178,4 +180,50 @@ class DiagApp(tk.Tk):
                     self.log(line)
             except FileNotFoundError:
                 self.log("Checklist document not found.")
+        self._worker(work)
+
+    def do_feeds(self):
+        kw = simpledialog.askstring(
+            "Forum/RSS search",
+            "Keywords (space separated, all must match):", parent=self)
+        if not kw:
+            return
+
+        def work():
+            import json as _json
+            from . import feeds
+            cfg = feeds.CACHE.parent.parent / "data" / "feeds.json"
+            feed_list = feeds.DEFAULT_FEEDS
+            if cfg.exists():
+                feed_list = _json.loads(cfg.read_text(encoding="utf-8"))["feeds"]
+            if not feed_list:
+                self.log("No feeds configured. Add forum RSS URLs to data/feeds.json")
+                return
+            results, errors = feeds.search(feed_list, kw.split())
+            for e in errors:
+                self.log(f"(feed unavailable, used cache: {e})")
+            self.log(f"{len(results)} result(s):")
+            for it in results[:15]:
+                self.log(f"  - {it['title']}")
+                self.log(f"    {it['link']}")
+        self._worker(work)
+
+    def do_ai(self):
+        q = simpledialog.askstring(
+            "AI assistant",
+            "Ask the diagnostic assistant (needs FTR_AI_PROVIDER + AI_API_KEY):",
+            parent=self)
+        if not q:
+            return
+
+        def work():
+            import json as _json
+            from . import aichat
+            kb = known_issues.load_kb()
+            try:
+                reply = aichat.chat([{"role": "user", "content": q}],
+                                    kb_text=_json.dumps(kb["issues"])[:8000])
+            except Exception as e:
+                reply = f"(request failed: {e})"
+            self.log("ai> " + reply)
         self._worker(work)
