@@ -1,21 +1,42 @@
-"""Optional AI assistant — OpenAI-compatible endpoint, stdlib only.
+"""Optional AI assistant — OpenAI-compatible endpoints, stdlib only.
 
-Configure via environment variables (nothing is hard-coded):
-  AI_BASE_URL   e.g. https://api.openai.com/v1  (or any compatible endpoint)
-  AI_API_KEY    your key
-  AI_MODEL      e.g. gpt-4o-mini
+Provider presets (select with FTR_AI_PROVIDER, default 'custom'):
+  grok    -> xAI Grok API (https://api.x.ai/v1). Note: the xAI API is a paid
+             product with occasional free-credit promotions; it is NOT the
+             free grok.com chat. Any OpenAI-compatible endpoint works too.
+  custom  -> set AI_BASE_URL yourself (OpenAI, local LLM, anything compatible)
 
-Privacy: the assistant context is built from the known-issues KB and a
-snapshot with the VIN REMOVED. If unset, chat() explains how to configure it.
+Configuration via environment variables (nothing hard-coded):
+  FTR_AI_PROVIDER   'grok' or 'custom'
+  AI_API_KEY        your key (required)
+  AI_BASE_URL       overrides the provider preset URL
+  AI_MODEL          overrides the provider preset model
+
+Privacy: context is the known-issues KB plus a snapshot with the VIN REMOVED.
 """
 
 import json
 import os
 import urllib.request
 
+PROVIDERS = {
+    "grok": ("https://api.x.ai/v1", "grok-3-mini"),
+    "custom": ("", "gpt-4o-mini"),
+}
+
+
+def _settings():
+    provider = os.environ.get("FTR_AI_PROVIDER", "custom").lower()
+    base, model = PROVIDERS.get(provider, PROVIDERS["custom"])
+    base = os.environ.get("AI_BASE_URL", base).rstrip("/")
+    model = os.environ.get("AI_MODEL", model)
+    key = os.environ.get("AI_API_KEY", "")
+    return provider, base, model, key
+
 
 def configured():
-    return bool(os.environ.get("AI_BASE_URL") and os.environ.get("AI_API_KEY"))
+    _, base, _, key = _settings()
+    return bool(base and key)
 
 
 def _snapshot_sanitized(path):
@@ -29,11 +50,12 @@ def _snapshot_sanitized(path):
 
 
 def chat(messages, kb_text="", snapshot_path=None):
-    if not configured():
-        return ("AI assistant not configured. Set AI_BASE_URL, AI_API_KEY and "
-                "AI_MODEL to any OpenAI-compatible endpoint. The offline "
-                "known-issues lookup (menu 8) works without it.")
-    base = os.environ["AI_BASE_URL"].rstrip("/")
+    provider, base, model, key = _settings()
+    if not (base and key):
+        return ("AI assistant not configured. For Grok: set FTR_AI_PROVIDER=grok "
+                "and AI_API_KEY=<your xAI key>. For any other OpenAI-compatible "
+                "endpoint set AI_BASE_URL + AI_API_KEY (+ AI_MODEL). The offline "
+                "known-issues lookup (menu 8) works without any of this.")
     system = (
         "You are a Ford 2.0 TDCi diagnostic assistant embedded in an open-"
         "source tool. Be technical and specific. Ground answers in the "
@@ -45,13 +67,13 @@ def chat(messages, kb_text="", snapshot_path=None):
     if snap:
         system += f"\n\nCURRENT VEHICLE SNAPSHOT (VIN stripped):\n{snap}"
     body = json.dumps({
-        "model": os.environ.get("AI_MODEL", "gpt-4o-mini"),
+        "model": model,
         "messages": [{"role": "system", "content": system}] + messages,
     }).encode()
     req = urllib.request.Request(
         f"{base}/chat/completions", data=body,
         headers={"Content-Type": "application/json",
-                 "Authorization": f"Bearer {os.environ['AI_API_KEY']}"})
+                 "Authorization": f"Bearer {key}"})
     with urllib.request.urlopen(req, timeout=60) as r:
         data = json.loads(r.read())
     return data["choices"][0]["message"]["content"]

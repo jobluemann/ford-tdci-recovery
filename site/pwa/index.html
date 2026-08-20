@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#1c4e80">
+<title>TDCi Recovery Diagnostics</title>
+<link rel="manifest" href="manifest.json">
+<style>
+  :root { --blue:#1c4e80; --ink:#1c2733; --mut:#5a6b7b; --line:#dde4ea; }
+  * { box-sizing:border-box; }
+  body { font-family:Segoe UI, Arial, sans-serif; background:#f4f6f8; color:var(--ink); margin:0; padding:0 0 60px; }
+  header { background:var(--blue); color:#fff; padding:14px 16px; }
+  header h1 { font-size:17px; margin:0; }
+  header .sub { font-size:12px; opacity:.85; }
+  main { max-width:720px; margin:0 auto; padding:14px; }
+  .card { background:#fff; border:1px solid var(--line); border-radius:10px; padding:14px 16px; margin-bottom:14px; }
+  input, button { font-size:15px; padding:10px; border-radius:8px; border:1px solid var(--line); width:100%; margin:4px 0; }
+  button { background:var(--blue); color:#fff; border:none; font-weight:600; cursor:pointer; }
+  button.ghost { background:#eaf1f7; color:var(--ink); }
+  .issue { border-top:1px solid var(--line); padding:10px 0; }
+  .badge { display:inline-block; font-size:11px; font-weight:700; padding:2px 8px; border-radius:20px; margin-right:6px; }
+  .yes { background:#e7f6e7; color:#1e7b1e; }
+  .no  { background:#fdeaea; color:#a33; }
+  .conf { background:#eef2f6; color:var(--mut); }
+  h3 { margin:6px 0 4px; font-size:15px; }
+  ul { margin:4px 0; padding-left:20px; font-size:13.5px; }
+  .src { font-size:11.5px; color:var(--mut); word-break:break-all; }
+  .status { font-size:12.5px; color:var(--mut); }
+  code { background:#eef2f6; padding:1px 5px; border-radius:4px; font-size:12px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>TDCi Recovery Diagnostics</h1>
+  <div class="sub">Open-source · ford-tdci-recovery · works offline</div>
+</header>
+<main>
+
+<div class="card">
+  <h3>Live vehicle (via bridge)</h3>
+  <p class="status">Run <code>python ford_recovery.py --serve 8765</code> on a laptop connected to the car (USB or Bluetooth ELM327), phone on the same WiFi.</p>
+  <input id="bridge" placeholder="Bridge URL, e.g. http://192.168.1.50:8765">
+  <button onclick="readCodes()">Read fault codes</button>
+  <button class="ghost" onclick="moduleScan()">Full module scan</button>
+  <div id="live" class="status" style="margin-top:8px"></div>
+</div>
+
+<div class="card">
+  <h3>Known-issue lookup</h3>
+  <input id="sym" placeholder="Describe symptoms, e.g. 'scratch between gears 1 2 3'">
+  <input id="dtcs" placeholder="Fault codes (optional), e.g. P2453">
+  <button onclick="lookup()">Match against knowledge base</button>
+  <div id="matches"></div>
+</div>
+
+<div class="card">
+  <h3>Browse known issues</h3>
+  <div id="kb"></div>
+</div>
+
+</main>
+<script>
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
+const $ = id => document.getElementById(id);
+$('bridge').value = localStorage.getItem('bridge') || '';
+$('bridge').addEventListener('change', () => localStorage.setItem('bridge', $('bridge').value));
+let KB = null;
+fetch('kb.json').then(r => r.json()).then(k => { KB = k; browse(); });
+
+const norm = s => s.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+
+function match(dtcs, text) {
+  const t = norm(text), set = new Set(dtcs.map(d => d.toUpperCase()));
+  return KB.issues.map(i => {
+    const dHit = (i.dtcs || []).filter(d => set.has(d.toUpperCase()));
+    const sHit = (i.symptoms || []).filter(p =>
+      norm(p).split(' ').every(w => t.includes(w)));
+    return { score: 3 * dHit.length + sHit.length, i, dHit, sHit };
+  }).filter(x => x.score > 0).sort((a, b) => b.score - a.score);
+}
+
+function renderIssue(i, dHit = [], sHit = []) {
+  const badge = i.known_issue === 'yes' ? '<span class="badge yes">KNOWN ISSUE</span>'
+                                        : '<span class="badge no">UNCONFIRMED</span>';
+  let h = `<div class="issue">${badge}<span class="badge conf">${i.confidence}</span>
+    <h3>${i.title}</h3>`;
+  if (dHit.length) h += `<p class="status">matching codes: ${dHit.join(', ')}</p>`;
+  if (sHit.length) h += `<p class="status">matching symptoms: ${sHit.join(', ')}</p>`;
+  h += '<b style="font-size:13px">Likely causes (most common first):</b><ul>' +
+       i.likely_causes.map(c => `<li>${c}</li>`).join('') + '</ul>' +
+       '<b style="font-size:13px">Checks:</b><ul>' +
+       i.checks.map(c => `<li>${c}</li>`).join('') + '</ul>';
+  if (i.sources && i.sources.length)
+    h += '<div class="src">Sources: ' + i.sources.join(' · ') + '</div>';
+  return h + '</div>';
+}
+
+function lookup() {
+  const dtcs = $('dtcs').value.split(/[\s,]+/).filter(Boolean);
+  const hits = match(dtcs, $('sym').value);
+  $('matches').innerHTML = hits.length
+    ? hits.map(x => renderIssue(x.i, x.dHit, x.sHit)).join('')
+    : '<p class="status">No match — try different wording, or contribute this issue once diagnosed.</p>';
+}
+
+function browse() {
+  $('kb').innerHTML = KB.issues.map(i => renderIssue(i)).join('') +
+    `<p class="status">${KB.disclaimer}</p>`;
+}
+
+async function callBridge(path) {
+  const base = $('bridge').value.replace(/\/$/, '');
+  if (!base) { $('live').textContent = 'Set the bridge URL first.'; return null; }
+  try {
+    const r = await fetch(base + path);
+    return await r.json();
+  } catch (e) {
+    $('live').textContent = 'Bridge unreachable: ' + e;
+    return null;
+  }
+}
+
+async function readCodes() {
+  const d = await callBridge('/api/dtcs');
+  if (!d) return;
+  $('live').innerHTML = d.dtcs.length
+    ? '<b>Codes:</b> ' + d.dtcs.map(c => `${c.code} — ${c.description || 'no description'}`).join('<br>')
+    : 'No stored fault codes.';
+  if (d.dtcs.length) { $('dtcs').value = d.dtcs.map(c => c.code).join(' '); }
+}
+
+async function moduleScan() {
+  $('live').textContent = 'Scanning all modules (can take a minute)…';
+  const d = await callBridge('/api/scan');
+  if (!d) return;
+  $('live').innerHTML = d.modules.map(m =>
+    `<b>${m.present ? '✔' : '✘'}</b> ${m.name}` +
+    (m.dtcs.length ? '<br>&nbsp;&nbsp;' + m.dtcs.join('<br>&nbsp;&nbsp;') : '')).join('<br>');
+}
+</script>
+</body>
+</html>

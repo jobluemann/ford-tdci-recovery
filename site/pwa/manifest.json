@@ -1,0 +1,12 @@
+{
+  "name": "TDCi Recovery Diagnostics",
+  "short_name": "TDCi Diag",
+  "description": "Open-source Ford 2.0 TDCi diagnostics: known-issues lookup, symptom matching, live codes via bridge.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#f4f6f8",
+  "theme_color": "#1c4e80",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}

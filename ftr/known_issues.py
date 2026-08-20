@@ -1,14 +1,37 @@
-"""Known-issues knowledge base: load, match by DTCs and symptom text."""
+"""Known-issues knowledge base: multi-vehicle loading + symptom matching.
+
+KBs live as one JSON file per vehicle in data/known_issues/<vehicle>.json —
+that is the scaling unit. A new make/model is a new data file, not new code.
+"""
 
 import json
 import re
 from pathlib import Path
 
-DEFAULT_KB = Path(__file__).resolve().parent.parent / "data" / "known_issues_kuga_mk2.json"
+KB_DIR = Path(__file__).resolve().parent.parent / "data" / "known_issues"
 
 
-def load_kb(path=None):
-    with open(path or DEFAULT_KB, encoding="utf-8") as f:
+def available_vehicles():
+    """Return {vehicle_key: vehicle_title} for every installed KB."""
+    out = {}
+    for p in sorted(KB_DIR.glob("*.json")):
+        try:
+            with open(p, encoding="utf-8") as f:
+                out[p.stem] = json.load(f).get("vehicle", p.stem)
+        except (json.JSONDecodeError, OSError):
+            continue
+    return out
+
+
+def load_kb(vehicle=None):
+    """Load one KB by key (e.g. 'kuga_mk2'); default = first available."""
+    vehicles = available_vehicles()
+    if not vehicles:
+        raise FileNotFoundError(f"No knowledge bases found in {KB_DIR}")
+    key = vehicle or next(iter(vehicles))
+    if key not in vehicles:
+        raise FileNotFoundError(f"Unknown vehicle '{key}'. Available: {list(vehicles)}")
+    with open(KB_DIR / f"{key}.json", encoding="utf-8") as f:
         return json.load(f)
 
 
@@ -20,7 +43,7 @@ def match(kb, dtcs=(), symptom_text=""):
     """Rank KB issues against observed DTCs and free-text symptoms.
 
     Scoring: 3 points per DTC hit, 1 per symptom-keyword hit.
-    Returns list of (score, issue) sorted best-first.
+    Returns list of (score, issue, dtc_hits, symptom_hits), best first.
     """
     text = _norm(symptom_text)
     dtc_set = {d.upper() for d in dtcs}

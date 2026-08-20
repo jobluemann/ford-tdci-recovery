@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Ford Kuga 2.0 TDCi — DPF Pressure Sensor Failure Map</title>
+<style>
+  body { font-family: Segoe UI, Arial, sans-serif; background:#f4f6f8; color:#1c2733;
+         margin:0; padding:24px; }
+  h1 { font-size:20px; margin:0 0 4px; }
+  .sub { color:#5a6b7b; margin-bottom:16px; font-size:13px; }
+  .card { background:#fff; border:1px solid #dde4ea; border-radius:10px;
+          padding:16px; max-width:1000px; }
+  svg text { font-family: Segoe UI, Arial, sans-serif; }
+  .legend { max-width:1000px; margin-top:16px; background:#fff;
+            border:1px solid #dde4ea; border-radius:10px; padding:16px 20px; }
+  .legend h2 { font-size:15px; margin:0 0 8px; }
+  .legend li { margin:6px 0; font-size:13.5px; line-height:1.45; }
+  .tag { display:inline-block; min-width:22px; text-align:center; background:#c0392b;
+         color:#fff; border-radius:50%; font-weight:700; font-size:12px; padding:2px 0; }
+</style>
+</head>
+<body>
+<h1>Ford Kuga 2.0 TDCi — DPF Differential Pressure Sensor: Where It Fails</h1>
+<div class="sub">Schematic layout (not to scale). The sensor sits in the engine bay near the battery box; two hoses run down to metal pipes either side of the DPF under the car.</div>
+
+<div class="card">
+<svg viewBox="0 0 1000 640" width="100%" role="img" aria-label="DPF pressure sensor system diagram">
+  <defs>
+    <marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+      <path d="M0,0 L8,4 L0,8 z" fill="#5a6b7b"/>
+    </marker>
+    <style>
+      .box   { fill:#eaf1f7; stroke:#33516b; stroke-width:1.6; rx:8; }
+      .bay   { fill:none; stroke:#9fb3c4; stroke-width:1.4; stroke-dasharray:7 5; }
+      .lbl   { font-size:13px; font-weight:600; fill:#1c2733; }
+      .small { font-size:11px; fill:#44586b; }
+      .hose  { stroke:#e67e22; stroke-width:4; fill:none; }
+      .wire  { stroke:#2e86c1; stroke-width:2.4; fill:none; }
+      .pipe  { stroke:#7f8c9b; stroke-width:14; fill:none; stroke-linecap:round; }
+      .fail  { fill:#c0392b; }
+      .fl    { font-size:11.5px; fill:#c0392b; font-weight:700; }
+    </style>
+  </defs>
+
+  <!-- ================= ENGINE BAY ================= -->
+  <rect x="30" y="30" width="940" height="270" class="bay" rx="14"/>
+  <text x="46" y="54" class="small">ENGINE BAY (top view)</text>
+
+  <!-- Battery box -->
+  <rect x="60" y="80" width="170" height="110" class="box"/>
+  <text x="145" y="128" text-anchor="middle" class="lbl">Battery box</text>
+  <text x="145" y="146" text-anchor="middle" class="small">sensor bracket usually</text>
+  <text x="145" y="160" text-anchor="middle" class="small">mounted alongside this</text>
+
+  <!-- Sensor -->
+  <rect x="330" y="80" width="180" height="110" class="box"/>
+  <text x="420" y="112" text-anchor="middle" class="lbl">DPF differential</text>
+  <text x="420" y="128" text-anchor="middle" class="lbl">pressure sensor</text>
+  <text x="420" y="146" text-anchor="middle" class="small">HI port · LO port on underside</text>
+
+  <!-- F4 on sensor -->
+  <circle cx="510" cy="80" r="13" class="fail"/>
+  <text x="510" y="84" text-anchor="middle" fill="#fff" font-size="12" font-weight="700">4</text>
+
+  <!-- Connector plug -->
+  <rect x="248" y="102" width="60" height="40" class="box"/>
+  <text x="278" y="126" text-anchor="middle" class="small">plug</text>
+  <line x1="308" y1="122" x2="330" y2="122" class="wire"/>
+
+  <!-- F3 on loom -->
+  <circle cx="318" cy="96" r="13" class="fail"/>
+  <text x="318" y="100" text-anchor="middle" fill="#fff" font-size="12" font-weight="700">3</text>
+  <text x="250" y="76" class="fl">broken wire inside loom</text>
+
+  <!-- ECM -->
+  <rect x="700" y="80" width="180" height="110" class="box"/>
+  <text x="790" y="122" text-anchor="middle" class="lbl">ECM / PCM</text>
+  <text x="790" y="140" text-anchor="middle" class="small">reads ΔP, triggers regen,</text>
+  <text x="790" y="154" text-anchor="middle" class="small">sets P2002 / P2453 / P2463…</text>
+
+  <!-- Signal wire sensor -> ECM -->
+  <path d="M510,122 C 590,122 620,122 700,122" class="wire" marker-end="url(#arrow)"/>
+  <text x="605" y="112" text-anchor="middle" class="small">5 V ref · signal · ground</text>
+
+  <!-- Hoses from sensor underside -->
+  <path d="M400,190 C 400,300 360,330 340,420" class="hose"/>
+  <path d="M445,190 C 445,300 560,330 610,420" class="hose"/>
+  <text x="330" y="300" class="small" transform="rotate(-72 330 300)">HI hose (upstream)</text>
+  <text x="545" y="300" class="small" transform="rotate(60 545 300)">LO hose (downstream)</text>
+
+  <!-- F1 on hose -->
+  <circle cx="368" cy="330" r="13" class="fail"/>
+  <text x="368" y="334" text-anchor="middle" fill="#fff" font-size="12" font-weight="700">1</text>
+  <text x="180" y="350" class="fl">split / chafed hose</text>
+
+  <!-- ================= UNDER CAR ================= -->
+  <rect x="30" y="400" width="940" height="210" class="bay" rx="14"/>
+  <text x="46" y="424" class="small">UNDER CAR — exhaust line</text>
+
+  <!-- Exhaust pipe -->
+  <path d="M70,500 L930,500" class="pipe"/>
+  <text x="80" y="470" class="small">from turbo / engine</text>
+  <path d="M70,470 L120,470" stroke="#7f8c9b" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- DOC -->
+  <rect x="230" y="472" width="110" height="56" fill="#dfe6ec" stroke="#33516b" stroke-width="1.6" rx="8"/>
+  <text x="285" y="505" text-anchor="middle" class="lbl">DOC</text>
+
+  <!-- DPF -->
+  <rect x="420" y="472" width="160" height="56" fill="#d6c9b8" stroke="#8a6d3b" stroke-width="1.8" rx="8"/>
+  <text x="500" y="497" text-anchor="middle" class="lbl">DPF</text>
+  <text x="500" y="513" text-anchor="middle" class="small">soot + ash trapped here</text>
+
+  <!-- F5 on DPF -->
+  <circle cx="580" cy="472" r="13" class="fail"/>
+  <text x="580" y="476" text-anchor="middle" fill="#fff" font-size="12" font-weight="700">5</text>
+
+  <!-- Metal take-off pipes -->
+  <path d="M340,486 L340,430" stroke="#7f8c9b" stroke-width="6" fill:none/>
+  <path d="M610,486 L610,430" stroke="#7f8c9b" stroke-width="6" fill:none/>
+  <text x="340" y="556" text-anchor="middle" class="small">metal pipe (inlet side)</text>
+  <text x="610" y="556" text-anchor="middle" class="small">metal pipe (outlet side)</text>
+
+  <!-- F2 on metal pipe -->
+  <circle cx="340" cy="452" r="13" class="fail"/>
+  <text x="340" y="456" text-anchor="middle" fill="#fff" font-size="12" font-weight="700">2</text>
+  <text x="150" y="440" class="fl">soot-blocked nipple</text>
+
+  <!-- to tailpipe -->
+  <text x="860" y="470" class="small">to tailpipe</text>
+</svg>
+</div>
+
+<div class="legend">
+<h2>Failure points, in order of likelihood</h2>
+<ol>
+  <li><span class="tag">1</span> <b>Split / chafed rubber hoses</b> — the two small hoses crack with heat and age, or chafe where they route down to the subframe. A split HI-side hose makes the sensor read ~0 kPa and the ECM flags sensor range/performance (P2453).</li>
+  <li><span class="tag">2</span> <b>Soot-blocked hose or metal take-off pipe</b> — the nipple welded to the exhaust clogs with soot. Remove the hose and blow through / clear the pipe with a stiff wire.</li>
+  <li><span class="tag">3</span> <b>Broken wire inside the loom</b> — peel back the tape near the sensor plug; a fatigued conductor (often a blue wire with a tracer stripe) breaks inside intact-looking insulation. Check continuity, not just looks.</li>
+  <li><span class="tag">4</span> <b>Failed sensor</b> — only after 1–3 are ruled out. Verify: ~0–3 kPa at idle, rising smoothly with RPM/load; a stuck or dead reading with clear hoses = replace with an OE-grade sensor.</li>
+  <li><span class="tag">5</span> <b>Genuinely blocked DPF</b> — high ΔP confirmed on live data (e.g. &gt;10–15 kPa at cruise) with healthy hoses/wiring/sensor. Try a forced regeneration (FORScan) or professional cleaning before replacing the filter.</li>
+</ol>
+<p style="font-size:12.5px;color:#5a6b7b;">After any repair: clear codes and run <b>"Reset Differential Pressure Sensor Learned Values"</b> and <b>"Reset DPF Learned Values"</b> in FORScan — this is a legitimate service procedure, not an override.</p>
+</div>
+</body>
+</html>

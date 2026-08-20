@@ -90,12 +90,48 @@ ftr/cli.py              interactive menu
 ftr/uds.py              UDS (ISO 14229) client over ELM327
 ftr/vbf.py              VBF firmware container parser
 ftr/flasher.py          flash orchestration + scripted simulator
+ftr/modules.py          Ford module map + full-vehicle scan + simulator
+ftr/known_issues.py     multi-vehicle KB loader + symptom matcher
+ftr/feeds.py            forum/RSS symptom search (stdlib, cached)
+ftr/aichat.py           optional AI assistant (Grok / OpenAI-compatible)
+ftr/share.py            anonymized community report builder
+ftr/server.py           HTTP bridge for the PWA (--serve)
+data/known_issues/      one JSON per vehicle — the scaling unit
+site/                   PHP collector + viewer + PWA (no Node needed)
+dpf_tool.py             legacy standalone DPF tool (superseded by the suite)
+dpf_failure_diagram.html  DPF failure-point map
 config/                 flash plan skeletons (placeholder values — verify!)
 docs/POST_BATTERY_PROCEDURE.md
 docs/PCM_REPLACEMENT_GUIDE.md   when the module itself has failed
 docs/DIY_REFLASH_NOTES.md       expert in-vehicle reflash: inputs & safety
+docs/ARCHITECTURE.md            suite design + scaling
 backups/                your snapshots land here (git-ignored)
 ```
+
+## Scaling to other makes and models
+
+The architecture is deliberately layered so growth is **data, not code**:
+
+1. **Universal core (works on any OBD-II vehicle, ~2008+):** ELM327 transport,
+   standard Mode 01/03/09 diagnostics, backup snapshots, the PWA, the bridge.
+   Nothing here is Ford-specific.
+2. **Make packs (per manufacturer):** module maps (`ftr/modules.py` table —
+   CAN IDs per make), Mode-22 PID tables, flash-plan skeletons.
+3. **Model KBs (per vehicle):** `data/known_issues/<vehicle>.json` — one file
+   per model, community-sourced via PRs. This is where the project scales
+   indefinitely without the code getting heavier.
+
+Practical limit: the *diagnostics* scale to everything with an OBD-II port
+today; the *curated value* (known-issues KBs) scales with contributors. The
+realistic path is Ford platform first, then VW/Toyota packs as contributors
+with those vehicles arrive.
+
+## Phone / browser app (PWA)
+
+`site/pwa/` is an installable PWA: offline known-issues browser + symptom
+matcher out of the box; live diagnostics when it can reach the bridge
+(`python ford_recovery.py --serve 8765`) running on a laptop or Raspberry Pi
+connected to the car. Host it on any static/PHP host — no Node anywhere.
 
 ## License
 
