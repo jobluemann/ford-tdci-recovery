@@ -19,6 +19,7 @@ Privacy: context is the known-issues KB plus a snapshot with the VIN REMOVED.
 
 import json
 import os
+import re
 import urllib.request
 
 PROVIDERS = {
@@ -158,7 +159,13 @@ def chat(messages, kb_text="", snapshot_path=None, role="diag"):
                  "User-Agent": "ford-tdci-recovery/1.0"})
     with urllib.request.urlopen(req, timeout=60) as r:
         data = json.loads(r.read())
-    return data["choices"][0]["message"]["content"]
+    content = data["choices"][0]["message"]["content"]
+    # reasoning models (e.g. Qwen on Groq) emit <think>…</think> — hide the
+    # chain-of-thought, show only the answer
+    if "<think>" in content:
+        content = re.sub(r"<think>.*?</think>", "", content,
+                         flags=re.DOTALL).strip()
+    return content
 
 
 def chat_grounded(question, history=None, snapshot_path=None, vehicle=None):
