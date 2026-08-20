@@ -46,7 +46,18 @@ def match(kb, dtcs=(), symptom_text=""):
     Returns list of (score, issue, dtc_hits, symptom_hits), best first.
     """
     text = _norm(symptom_text)
+    text_words = text.split()
     dtc_set = {d.upper() for d in dtcs}
+
+    def word_hit(word):
+        if word in text_words:
+            return True
+        # prefix tolerance: 'scratch' should match 'scratching', 'gear'~'gears'
+        if len(word) >= 5:
+            return any(w.startswith(word[:5]) or word.startswith(w[:5])
+                       for w in text_words if len(w) >= 5)
+        return False
+
     scored = []
     for issue in kb["issues"]:
         score = 0
@@ -55,7 +66,7 @@ def match(kb, dtcs=(), symptom_text=""):
         sym_hits = []
         for phrase in issue.get("symptoms", []):
             p = _norm(phrase)
-            if p and all(word in text for word in p.split()):
+            if p and all(word_hit(word) for word in p.split()):
                 sym_hits.append(phrase)
         score += len(sym_hits)
         if score:

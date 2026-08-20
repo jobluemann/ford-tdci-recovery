@@ -71,11 +71,13 @@ fetch('kb.json').then(r => r.json()).then(k => { KB = k; browse(); });
 const norm = s => s.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
 
 function match(dtcs, text) {
-  const t = norm(text), set = new Set(dtcs.map(d => d.toUpperCase()));
+  const t = norm(text), tw = t.split(' '), set = new Set(dtcs.map(d => d.toUpperCase()));
+  const wHit = w => tw.includes(w) || (w.length >= 5 &&
+    tw.some(x => x.length >= 5 && (x.startsWith(w.slice(0,5)) || w.startsWith(x.slice(0,5)))));
   return KB.issues.map(i => {
     const dHit = (i.dtcs || []).filter(d => set.has(d.toUpperCase()));
     const sHit = (i.symptoms || []).filter(p =>
-      norm(p).split(' ').every(w => t.includes(w)));
+      norm(p).split(' ').every(w => wHit(w)));
     return { score: 3 * dHit.length + sHit.length, i, dHit, sHit };
   }).filter(x => x.score > 0).sort((a, b) => b.score - a.score);
 }
