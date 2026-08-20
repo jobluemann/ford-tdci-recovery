@@ -1,0 +1,14 @@
+{
+  "_comment": "EXAMPLE flash plan for a Siemens/Continental SID20x PCM. These values are placeholders — verify session subfunctions, security levels, erase/verify routine IDs and addressing against your own documentation for your exact hardware part number before use.",
+  "tx_id": "7E0",
+  "rx_id": "7E8",
+  "session": { "extended": "03", "programming": "02" },
+  "security": [
+    { "seed_sub": "01", "key_sub": "02" }
+  ],
+  "erase_routine": "FF00",
+  "verify_routine": "FF01",
+  "addr_len_fmt": "44",
+  "block_size": 256,
+  "min_voltage": 12.4
+}

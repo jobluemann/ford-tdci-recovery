@@ -72,13 +72,19 @@ cheap Bluetooth adapters are HS-CAN only.
 ## Project layout
 
 ```
-ford_recovery.py        entry point
+ford_recovery.py        entry point (diagnostics/backup)
+pcm_flasher.py          expert UDS reflash entry point (you supply seed/key + firmware)
 ftr/elm327.py           ELM327 transport (USB/Bluetooth serial) + simulator
 ftr/obd.py              DTC / VIN / Mode-09 / PID decoding
 ftr/backup.py           full readable-state snapshot (JSON)
 ftr/cli.py              interactive menu
+ftr/uds.py              UDS (ISO 14229) client over ELM327
+ftr/vbf.py              VBF firmware container parser
+ftr/flasher.py          flash orchestration + scripted simulator
+config/                 flash plan skeletons (placeholder values — verify!)
 docs/POST_BATTERY_PROCEDURE.md
 docs/PCM_REPLACEMENT_GUIDE.md   when the module itself has failed
+docs/DIY_REFLASH_NOTES.md       expert in-vehicle reflash: inputs & safety
 backups/                your snapshots land here (git-ignored)
 ```
 
