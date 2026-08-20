@@ -12,9 +12,9 @@ import threading
 import time
 import tkinter as tk
 from datetime import datetime
-from tkinter import scrolledtext, simpledialog
+from tkinter import messagebox, scrolledtext, simpledialog, ttk
 
-from . import known_issues, modules, obd
+from . import aiconfig, known_issues, modules, obd
 from .backup import take_snapshot
 from .elm327 import ELM327, SimulatedECU
 from .modules import SimulatedVehicle
@@ -55,6 +55,7 @@ class DiagApp(tk.Tk):
             ("6. Post-battery checklist", self.do_checklist),
             ("7. Forum/RSS search", self.do_feeds),
             ("8. AI assistant", self.do_ai),
+            ("AI Setup", self.do_ai_setup),
         ]:
             tk.Button(btns, text=label, command=fn).pack(side="left", padx=3)
 
@@ -62,6 +63,7 @@ class DiagApp(tk.Tk):
                                              state="disabled", wrap="word")
         self.out.pack(fill="both", expand=True, padx=8, pady=8)
 
+        aiconfig.apply()  # load saved AI settings (env vars still win)
         self.after(80, self._pump)
 
     # ---------- plumbing ----------
@@ -208,10 +210,109 @@ class DiagApp(tk.Tk):
                 self.log(f"    {it['link']}")
         self._worker(work)
 
+    # ---------- AI setup (no environment variables needed) ----------
+    def do_ai_setup(self):
+        cfg = aiconfig.load()
+        win = tk.Toplevel(self)
+        win.title("AI Setup — paste your key, press Save")
+        win.geometry("560x330")
+        win.transient(self)
+
+        tk.Label(win, text="1. Get a FREE key at https://console.groq.com "
+                 "(sign in → API Keys → Create). No credit card.",
+                 wraplength=530, justify="left").pack(anchor="w", padx=12, pady=(10, 4))
+
+        frm = tk.Frame(win)
+        frm.pack(fill="x", padx=12, pady=4)
+
+        tk.Label(frm, text="2. Provider:").grid(row=0, column=0, sticky="w")
+        provider = ttk.Combobox(frm, state="readonly", width=14,
+                                values=["groq", "openrouter", "gemini",
+                                        "grok", "ollama", "custom"])
+        provider.set(cfg.get("FTR_AI_PROVIDER", "groq"))
+        provider.grid(row=0, column=1, sticky="w", padx=6)
+
+        tk.Label(frm, text="3. API key:").grid(row=1, column=0, sticky="w", pady=6)
+        key_entry = tk.Entry(frm, width=44, show="•")
+        key_entry.insert(0, cfg.get("GROQ_API_KEY") or cfg.get("AI_API_KEY", ""))
+        key_entry.grid(row=1, column=1, columnspan=2, sticky="w", padx=6)
+        show_var = tk.BooleanVar(value=False)
+        tk.Checkbutton(frm, text="show", variable=show_var,
+                       command=lambda: key_entry.configure(
+                           show="" if show_var.get() else "•")).grid(row=1, column=3)
+
+        tk.Label(frm, text="Fast model:").grid(row=2, column=0, sticky="w")
+        research = tk.Entry(frm, width=44)
+        research.insert(0, cfg.get("FTR_RESEARCH_MODEL",
+                                   aiconfig.DEFAULT_RESEARCH_MODEL))
+        research.grid(row=2, column=1, columnspan=2, sticky="w", padx=6)
+
+        tk.Label(frm, text="Smart model:").grid(row=3, column=0, sticky="w", pady=6)
+        diag = tk.Entry(frm, width=44)
+        diag.insert(0, cfg.get("FTR_DIAG_MODEL", aiconfig.DEFAULT_DIAG_MODEL))
+        diag.grid(row=3, column=1, columnspan=2, sticky="w", padx=6)
+
+        tk.Label(win, text="Leave the model names as-is unless you know what "
+                 "you're doing — the defaults are free and current.",
+                 fg="#666", wraplength=530, justify="left").pack(anchor="w", padx=12)
+
+        status = tk.Label(win, text="", fg="#1e7b1e")
+        status.pack(anchor="w", padx=12, pady=(4, 0))
+
+        def save_and_apply():
+            prov = provider.get()
+            key = key_entry.get().strip()
+            cfg = {"FTR_AI_PROVIDER": prov,
+                   "FTR_RESEARCH_PROVIDER": prov,
+                   "FTR_DIAG_PROVIDER": prov,
+                   "FTR_RESEARCH_MODEL": research.get().strip(),
+                   "FTR_DIAG_MODEL": diag.get().strip()}
+            if key:
+                cfg["AI_API_KEY"] = key
+                if prov == "groq":
+                    cfg["GROQ_API_KEY"] = key
+            aiconfig.save(cfg)
+            aiconfig.apply(cfg)
+            self.log("AI setup saved. The AI assistant button is ready to use.")
+
+        def test():
+            save_and_apply()
+            status.configure(text="testing…", fg="#666")
+            win.update_idletasks()
+
+            def work():
+                from . import aichat
+                try:
+                    reply = aichat.chat(
+                        [{"role": "user", "content":
+                          "Reply with exactly: AI connection OK"}])
+                    ok = "AI connection OK" in reply
+                    text = ("✓ works — the AI answered" if ok
+                            else f"answered: {reply[:80]}")
+                    colour = "#1e7b1e" if ok else "#a33"
+                except Exception as e:
+                    text, colour = f"✗ failed: {e}", "#a33"
+                win.after(0, lambda: status.configure(text=text, fg=colour))
+            threading.Thread(target=work, daemon=True).start()
+
+        row = tk.Frame(win)
+        row.pack(anchor="w", padx=12, pady=10)
+        tk.Button(row, text="Save", command=save_and_apply).pack(side="left", padx=4)
+        tk.Button(row, text="Save + Test", command=test).pack(side="left", padx=4)
+        tk.Button(row, text="Close", command=win.destroy).pack(side="left", padx=4)
+
     def do_ai(self):
+        if not aiconfig.configured():
+            if messagebox.askyesno(
+                    "AI not set up yet",
+                    "The AI assistant needs a free API key (2 minutes, "
+                    "no credit card).\n\nOpen the AI Setup window now?",
+                    parent=self):
+                self.do_ai_setup()
+            return
         q = simpledialog.askstring(
             "AI assistant",
-            "Ask the diagnostic assistant (needs FTR_AI_PROVIDER + AI_API_KEY):",
+            "Ask the diagnostic assistant:",
             parent=self)
         if not q:
             return

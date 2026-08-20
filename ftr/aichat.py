@@ -41,9 +41,10 @@ PROVIDERS = {
 #   FTR_RESEARCH_PROVIDER / FTR_RESEARCH_MODEL / FTR_RESEARCH_API_KEY
 #   FTR_DIAG_PROVIDER     / FTR_DIAG_MODEL     / FTR_DIAG_API_KEY
 # Recommended FREE recipe — one Groq key (console.groq.com), two models:
-#   FTR_RESEARCH_PROVIDER=groq FTR_RESEARCH_MODEL=llama-3.1-8b-instant
+#   FTR_RESEARCH_PROVIDER=groq FTR_RESEARCH_MODEL=openai/gpt-oss-20b
 #   FTR_DIAG_PROVIDER=groq     FTR_DIAG_MODEL=qwen/qwen3.6-27b
 #   GROQ_API_KEY=<groq key>    (shared key used by both roles)
+# Note: llama-3.1-8b-instant was SHUT DOWN on Groq 2026-08-16 — do not use it.
 # Alternative (one OpenRouter key, openrouter.ai — :free models exist):
 #   FTR_RESEARCH_PROVIDER=openrouter FTR_RESEARCH_MODEL=meta-llama/llama-3.1-8b-instruct:free
 #   FTR_DIAG_PROVIDER=openrouter     FTR_DIAG_MODEL=qwen/qwen-2.5-7b-instruct:free
