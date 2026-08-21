@@ -100,6 +100,8 @@ including the portable/embeddable distribution.
 
 ## Hardware, Bluetooth & Raspberry Pi
 
+- **`docs/MINT_SETUP.md`** — start here on Linux Mint: packages, optional
+  Kimi Code CLI, app install, AI key, Bluetooth, first run
 - **`docs/BLUETOOTH_SETUP.md`** — pair/bind a Bluetooth ELM327 on Linux Mint
   (or use `bash scripts/mint_bluetooth_setup.sh` — interactive, does it all)
 - **`docs/ADAPTERS.md`** — which adapters work (HS/MS-CAN switch matters!),
