@@ -36,7 +36,10 @@ cd ford-tdci-recovery
 pip3 install -r requirements.txt        # just pyserial
 
 # try it with the built-in fake car — no hardware, no keys:
-python3 gui_app.py
+python3 gui_app.py                      # the windowed app (needs python3-tk)
+
+# optional: a Mint menu entry + panel-pinnable icon (no terminal to launch):
+bash scripts/install_desktop_shortcut.sh
 ```
 
 ## 4. AI assistant key (one time, free)
