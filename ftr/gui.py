@@ -193,8 +193,8 @@ class DiagApp(tk.Tk):
 
         def work():
             import json as _json
-            from . import feeds
-            cfg = feeds.CACHE.parent.parent / "data" / "feeds.json"
+            from . import feeds, paths
+            cfg = paths.REPO_ROOT / "data" / "feeds.json"
             feed_list = feeds.DEFAULT_FEEDS
             if cfg.exists():
                 feed_list = _json.loads(cfg.read_text(encoding="utf-8"))["feeds"]

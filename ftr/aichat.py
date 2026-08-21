@@ -83,7 +83,7 @@ def gather_evidence(question, vehicle=None, max_kb=3, max_feed=5):
     Returns a text block injected into the AI context. Works offline (KB
     always; RSS when feeds are configured in data/feeds.json).
     """
-    from . import feeds, known_issues
+    from . import feeds, known_issues, paths
     parts = []
     kb = known_issues.load_kb(vehicle)
     hits = known_issues.match(kb, symptom_text=question)
@@ -95,7 +95,7 @@ def gather_evidence(question, vehicle=None, max_kb=3, max_feed=5):
                          + "; ".join(issue["likely_causes"][:3])
                          + " | sources: " + "; ".join(issue.get("sources", [])[:3]))
         parts.append("KNOWN-ISSUES KB MATCHES:\n" + "\n".join(lines))
-    cfg = feeds.CACHE.parent.parent / "data" / "feeds.json"
+    cfg = paths.REPO_ROOT / "data" / "feeds.json"
     feed_list = feeds.DEFAULT_FEEDS
     if cfg.exists():
         try:

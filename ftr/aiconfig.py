@@ -10,7 +10,9 @@ import json
 import os
 from pathlib import Path
 
-CONFIG_PATH = Path(__file__).resolve().parent.parent / "data" / "ai_config.json"
+from . import paths
+
+CONFIG_PATH = paths.ai_config_path()
 
 # Free, current Groq models (llama-3.1-8b-instant was shut down 2026-08-16):
 DEFAULT_RESEARCH_MODEL = "openai/gpt-oss-20b"   # fast stage

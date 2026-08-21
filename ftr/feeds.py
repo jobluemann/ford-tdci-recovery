@@ -10,7 +10,9 @@ import urllib.request
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
-CACHE = Path(__file__).resolve().parent.parent / "backups" / "feeds_cache.json"
+from . import paths
+
+CACHE = paths.backups_dir() / "feeds_cache.json"
 DEFAULT_FEEDS = [
     # Add your preferred forum RSS feeds here. Examples:
     # "https://www.fordownersclub.com/forums/forum/123-kuga/rss/",

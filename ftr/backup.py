@@ -9,13 +9,13 @@ import json
 import os
 from datetime import datetime, timezone
 
-from . import obd
+from . import obd, paths
 
 TOOL_NAME = "ford-tdci-recovery"
-TOOL_VERSION = "0.1.0"
+TOOL_VERSION = "0.4.0"
 
 
-def take_snapshot(ecu, out_dir="backups", dpf_pid="22 F4 2B"):
+def take_snapshot(ecu, out_dir=None, dpf_pid="22 F4 2B"):
     snap = {
         "tool": TOOL_NAME,
         "tool_version": TOOL_VERSION,
@@ -52,6 +52,7 @@ def take_snapshot(ecu, out_dir="backups", dpf_pid="22 F4 2B"):
     raw = ecu.query(dpf_pid)
     snap["dpf_pressure_sample"] = {"request": dpf_pid, "raw_response": raw}
 
+    out_dir = str(out_dir) if out_dir else str(paths.backups_dir())
     os.makedirs(out_dir, exist_ok=True)
     fname = os.path.join(
         out_dir, f"backup_{datetime.now():%Y%m%d_%H%M%S}.json"
