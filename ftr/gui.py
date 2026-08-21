@@ -28,6 +28,7 @@ class DiagApp(tk.Tk):
         self.q = queue.Queue()
         self.ecu = None
         self.vehicle = None
+        self.ai_history = []  # AI chat memory for this session
         self.live_running = False
         self.simulate = simulate
 
@@ -320,9 +321,15 @@ class DiagApp(tk.Tk):
         def work():
             from . import aichat
             try:
-                reply, evidence = aichat.chat_grounded(q)
+                reply, evidence = aichat.chat_grounded(
+                    q, history=list(self.ai_history))
             except Exception as e:
                 reply, evidence = f"(request failed: {e})", ""
+            # remember the exchange so follow-up questions keep context;
+            # cap at the last 10 exchanges to control the token budget
+            self.ai_history = (self.ai_history
+                               + [{"role": "user", "content": q},
+                                  {"role": "assistant", "content": reply}])[-20:]
             if evidence:
                 self.log("--- auto-gathered evidence ---")
                 for line in evidence.split("\n"):

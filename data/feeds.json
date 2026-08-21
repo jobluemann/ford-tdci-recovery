@@ -1,0 +1,10 @@
+{
+  "_comment": "Forum/RSS sources used for symptom evidence. Delete any URL that fails on your network; the app caches results and works offline. Verified 2026-08-20: the two reddit.com URLs returned 200 from a desktop browser UA. The three forum URLs are correct platform conventions (XenForo/Invision) but sit behind Cloudflare/bot filters on some networks — the app degrades gracefully if they fail.",
+  "feeds": [
+    "https://www.kugaownersclub.co.uk/forums/-/index.rss",
+    "https://www.talkford.com/community/forums/-/index.rss",
+    "https://www.fordownersclub.com/forums/rss/",
+    "https://www.reddit.com/r/Ford/search.rss?q=kuga&restrict_sr=on&sort=new",
+    "https://www.reddit.com/r/Cartalk/search.rss?q=dpf&restrict_sr=on&sort=new"
+  ]
+}

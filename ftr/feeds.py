@@ -18,7 +18,10 @@ DEFAULT_FEEDS = [
     # "https://www.fordownersclub.com/forums/forum/123-kuga/rss/",
     # "https://www.kugaownersclub.co.uk/forums/-/index.rss",
 ]
-UA = {"User-Agent": "ford-tdci-recovery/0.2 (+open source diagnostics)"}
+# Browser-like UA: the big Ford forums sit behind Cloudflare/bot filters
+# that reject obvious script agents with 403/timeout.
+UA = {"User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 "
+                    "(KHTML, like Gecko) Chrome/126.0 Safari/537.36"}
 
 
 def fetch_feed(url, timeout=15):
