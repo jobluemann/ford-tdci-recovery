@@ -272,7 +272,7 @@ class DiagApp(tk.Tk):
                 if prov == "groq":
                     cfg["GROQ_API_KEY"] = key
             aiconfig.save(cfg)
-            aiconfig.apply(cfg)
+            aiconfig.apply(cfg, force=True)  # overwrite any key already in memory
             self.log("AI setup saved. The AI assistant button is ready to use.")
 
         def test():

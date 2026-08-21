@@ -35,11 +35,18 @@ def save(cfg):
     CONFIG_PATH.write_text(json.dumps(cfg, indent=2), encoding="utf-8")
 
 
-def apply(cfg=None):
-    """Push saved settings into os.environ (env vars already set win)."""
+def apply(cfg=None, force=False):
+    """Push saved settings into os.environ.
+
+    By default, variables already set in the environment win (developers can
+    override the saved file). With force=True the given config overwrites
+    in-memory values too — required when the user saves a NEW key in the GUI
+    during a running session, otherwise a previously applied (possibly bad)
+    key would keep being used.
+    """
     cfg = cfg if cfg is not None else load()
     for k in _ENV_KEYS:
-        if cfg.get(k) and not os.environ.get(k):
+        if cfg.get(k) and (force or not os.environ.get(k)):
             os.environ[k] = cfg[k]
 
 
