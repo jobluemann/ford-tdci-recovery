@@ -98,6 +98,15 @@ python example_session.py         # full example session -> docs/EXAMPLE_SESSION
 No admin rights are needed to run it on Windows — any Python 3.8+ works,
 including the portable/embeddable distribution.
 
+## Hardware, Bluetooth & Raspberry Pi
+
+- **`docs/BLUETOOTH_SETUP.md`** — pair/bind a Bluetooth ELM327 on Linux Mint
+  (or use `bash scripts/mint_bluetooth_setup.sh` — interactive, does it all)
+- **`docs/ADAPTERS.md`** — which adapters work (HS/MS-CAN switch matters!),
+  what to avoid, bulk-buy checklist
+- **`docs/RASPBERRY_PI.md`** — Pi Zero 2 W as a plug-in bridge: phone uses
+  the PWA over WiFi, or a Pi with a screen runs the full GUI
+
 ## Bluetooth setup
 
 **Windows:** pair the adapter (PIN usually `1234` or `0000`), then check
