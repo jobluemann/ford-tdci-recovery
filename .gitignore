@@ -4,3 +4,7 @@ backups/
 .venv/
 data/ai_config.json
 .env
+.build-venv/
+build/
+*.spec
+dist/
