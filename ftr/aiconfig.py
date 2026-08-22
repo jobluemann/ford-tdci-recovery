@@ -20,7 +20,7 @@ DEFAULT_DIAG_MODEL = "qwen/qwen3.6-27b"         # reasoning stage
 
 _ENV_KEYS = ("FTR_AI_PROVIDER", "GROQ_API_KEY", "AI_API_KEY",
              "FTR_RESEARCH_PROVIDER", "FTR_RESEARCH_MODEL",
-             "FTR_DIAG_PROVIDER", "FTR_DIAG_MODEL")
+             "FTR_DIAG_PROVIDER", "FTR_DIAG_MODEL", "FTR_TTS_VOICE")
 
 
 def load():

@@ -78,6 +78,12 @@ class DiagApp(tk.Tk):
         tk.Button(top, text="Detect", command=self.detect_ports,
                   bg=PANEL, fg=DIM, activebackground=BORDER, relief="flat",
                   font=FONT_UI).pack(side="left", padx=4)
+        self.voice_var = tk.BooleanVar(value=False)
+        tk.Checkbutton(top, text="VOICE", variable=self.voice_var,
+                       bg=BG, fg=PART, selectcolor=PANEL,
+                       activebackground=BG, activeforeground=PART,
+                       font=(FONT_UI[0], 10, "bold")).pack(side="left",
+                                                           padx=(12, 0))
         tk.Button(top, text="CONNECT", command=self.connect,
                   bg=BORDER, fg="#ffffff", activebackground=ACCENT,
                   activeforeground=BG, relief="flat",
@@ -421,7 +427,7 @@ class DiagApp(tk.Tk):
         cfg = aiconfig.load()
         win = tk.Toplevel(self)
         win.title("AI Setup — paste your key, press Save")
-        win.geometry("580x340")
+        win.geometry("580x375")
         win.configure(bg=BG)
         win.transient(self)
 
@@ -469,6 +475,17 @@ class DiagApp(tk.Tk):
         diag.insert(0, cfg.get("FTR_DIAG_MODEL", aiconfig.DEFAULT_DIAG_MODEL))
         diag.grid(row=3, column=1, columnspan=2, sticky="w", padx=6)
 
+        tk.Label(frm, text="Voice:", bg=BG, fg=DIM,
+                 font=FONT_UI).grid(row=4, column=0, sticky="w")
+        voice = ttk.Combobox(frm, state="readonly", width=14,
+                             values=["autumn", "diana", "hannah",
+                                     "austin", "daniel", "troy"])
+        voice.set(cfg.get("FTR_TTS_VOICE", "autumn"))
+        voice.grid(row=4, column=1, sticky="w", padx=6)
+        tk.Label(frm, text="(reads the plain-English answer aloud when "
+                 "VOICE is ticked)", bg=BG, fg=DIM,
+                 font=(FONT_UI[0], 8)).grid(row=4, column=2, sticky="w")
+
         tk.Label(win, text="Leave the model names as-is unless you know what "
                  "you're doing — the defaults are free and current.",
                  fg=DIM, bg=BG, wraplength=550, justify="left",
@@ -484,7 +501,8 @@ class DiagApp(tk.Tk):
                    "FTR_RESEARCH_PROVIDER": prov,
                    "FTR_DIAG_PROVIDER": prov,
                    "FTR_RESEARCH_MODEL": research.get().strip(),
-                   "FTR_DIAG_MODEL": diag.get().strip()}
+                   "FTR_DIAG_MODEL": diag.get().strip(),
+                   "FTR_TTS_VOICE": voice.get().strip() or "autumn"}
             if key:
                 cfg["AI_API_KEY"] = key
                 if prov == "groq":
@@ -555,4 +573,13 @@ class DiagApp(tk.Tk):
                     self.log(line, "dim")
                 self.log("------------------------------", "dim")
             self.log("ai> " + reply)
+            if self.voice_var.get() and not reply.startswith("(request failed"):
+                try:
+                    from . import tts
+                    spoken = tts.plain_english_section(reply)
+                    self.log("voice> " + spoken[:120] + "…", "ai")
+                    tts.speak(spoken,
+                              voice=os.environ.get("FTR_TTS_VOICE", "autumn"))
+                except Exception as e:
+                    self.log(f"! voice failed: {e}", "err")
         self._worker(work)
