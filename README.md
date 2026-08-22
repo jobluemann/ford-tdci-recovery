@@ -13,16 +13,21 @@ Runs on **Windows (portable, no admin install)** and **Linux Mint**, over an
 **ELM327 adapter via USB or Bluetooth**. GUI included — no command line
 needed. One dependency (`pyserial`). See `docs/ARCHITECTURE.md` for the vision.
 
+## Install
+
+**[→ INSTALL.md](INSTALL.md)** — Windows portable zip (no admin), Linux
+Mint .deb or run-from-folder, adapter pairing, AI + voice setup.
+
 ## See it running
 
-Every screenshot below is the **real app**, captured by
-`docs/make_screenshots.py` against the built-in simulated car:
+Every screenshot below is the **real app**, captured against the built-in
+simulated car:
 
-![Main window — simulation mode, no hardware needed](docs/screenshots/01_main_connected.png)
+![Main window — dark digital console, fault codes annotated with parts](docs/screenshots/main_window_dtc_parts.png)
 
-![Fault codes + full module scan — including the modules the dashboard hides](docs/screenshots/02_fault_codes_module_scan.png)
+![Component map — click a dot for location, Ford part numbers, clipboard copy](docs/screenshots/component_map_dpf_sensor_selected.png)
 
-![AI assistant answering a real owner symptom, grounded in the known-issues KB with sources](docs/screenshots/03_ai_diagnosis.png)
+![Underside view — DPF, fuel vaporizer, Haldex AWD module](docs/screenshots/component_map_underside.png)
 
 A full end-to-end session (backup → module scan → KB verdicts → live AI
 diagnoses of five real faults) is in
