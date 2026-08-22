@@ -2,6 +2,7 @@
 """Headless GUI smoke test: drives the real buttons against the fake car."""
 
 import time
+import tkinter as tk
 
 from ftr.gui import DiagApp
 
@@ -16,6 +17,7 @@ app.do_backup()
 app.do_dtcs()
 app.do_scan()
 app.do_live()
+app.do_map()  # component map window (Toplevel)
 
 # let worker threads run, pumping tk events
 t0 = time.time()
@@ -26,6 +28,10 @@ app.do_live()  # stop live mode
 time.sleep(0.3)
 app.update()
 
+for w in list(app.winfo_children()):
+    if isinstance(w, tk.Toplevel):
+        w.destroy()
+
 text = app.out.get("1.0", "end")
 app.destroy()
 
@@ -35,6 +41,7 @@ required = [
     "PCM_SID",            # ECU name in backup
     "P2453",              # decoded DTC
     "P2463",
+    "→ part:",            # DTC annotated with matching component
     "OK  PCM",            # module scan
     "BUS? DEM",           # MS-CAN demonstration
     "raw=300",            # live DPF sample (0x012C = 300)

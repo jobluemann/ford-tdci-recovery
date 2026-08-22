@@ -14,7 +14,7 @@ import tkinter as tk
 from datetime import datetime
 from tkinter import messagebox, scrolledtext, simpledialog, ttk
 
-from . import aiconfig, known_issues, modules, obd
+from . import aiconfig, known_issues, modules, obd, parts
 from .backup import take_snapshot
 from .elm327 import ELM327, SimulatedECU
 from .modules import SimulatedVehicle
@@ -56,6 +56,7 @@ class DiagApp(tk.Tk):
             ("6. Post-battery checklist", self.do_checklist),
             ("7. Forum/RSS search", self.do_feeds),
             ("8. AI assistant", self.do_ai),
+            ("9. Component map", self.do_map),
             ("AI Setup", self.do_ai_setup),
         ]:
             tk.Button(btns, text=label, command=fn).pack(side="left", padx=3)
@@ -127,6 +128,14 @@ class DiagApp(tk.Tk):
             for c in codes:
                 note = obd.KNOWN_DTC.get(c, "")
                 self.log(f"  {c}  {('- ' + note) if note else ''}")
+                comps = parts.for_code(c)
+                for comp in comps:
+                    self.log(f"      → part: {comp['name']}"
+                             + (f"  ({', '.join(comp['part_numbers'])})"
+                                if comp.get("part_numbers") else ""))
+                    self.log(f"        {comp['location']}")
+            if any(parts.for_code(c) for c in codes):
+                self.log("  (open '9. Component map' to see where these parts sit)")
         self._worker(work)
 
     def do_scan(self):
@@ -210,6 +219,77 @@ class DiagApp(tk.Tk):
                 self.log(f"  - {it['title']}")
                 self.log(f"    {it['link']}")
         self._worker(work)
+
+    # ---------- component map ----------
+    def do_map(self):
+        comps = parts.load()
+        if not comps:
+            self.log("data/parts.json missing or empty.")
+            return
+        win = tk.Toplevel(self)
+        win.title("Component map — Kuga 2.0 TDCi (click a dot)")
+        win.geometry("860x560")
+
+        view = tk.StringVar(value="engine_bay")
+        bar = tk.Frame(win)
+        bar.pack(fill="x", padx=8, pady=4)
+        tk.Radiobutton(bar, text="Engine bay", variable=view,
+                       value="engine_bay",
+                       command=lambda: draw()).pack(side="left")
+        tk.Radiobutton(bar, text="Underside", variable=view,
+                       value="underside",
+                       command=lambda: draw()).pack(side="left", padx=8)
+        tk.Label(bar, text="Part numbers must be VIN-verified (Ford ETIS) "
+                 "before ordering.", fg="#a33").pack(side="right")
+
+        canvas = tk.Canvas(win, bg="#f4f1ea", highlightthickness=0, height=340)
+        canvas.pack(fill="both", expand=True, padx=8)
+        detail = tk.Text(win, height=10, font=("Consolas", 10), wrap="word")
+        detail.pack(fill="x", padx=8, pady=6)
+        detail.insert("end", "Click a component dot to see location, "
+                             "Ford part numbers and what this app can test.")
+        detail.configure(state="disabled")
+
+        def show(comp):
+            detail.configure(state="normal")
+            detail.delete("1.0", "end")
+            detail.insert("end", parts.describe(comp))
+            detail.configure(state="disabled")
+            self.clipboard_clear()
+            if comp.get("part_numbers"):
+                self.clipboard_append(comp["part_numbers"][0])
+                self.log(f"Component map: {comp['name']} — first part number "
+                         f"copied to clipboard ({comp['part_numbers'][0]})")
+
+        def draw():
+            canvas.delete("all")
+            w = max(canvas.winfo_width(), 700)
+            h = 330
+            # simple vehicle outline: front at left
+            canvas.create_rectangle(20, 30, w - 20, h - 20, outline="#999",
+                                    width=2)
+            canvas.create_text(30, 16, anchor="w", fill="#666",
+                               text=("FRONT → engine bay (bonnet open, top view)"
+                                     if view.get() == "engine_bay"
+                                     else "FRONT → underside view (car lifted)"))
+            for comp in comps:
+                m = comp.get("map", {})
+                if m.get("view") != view.get():
+                    continue
+                x = 20 + (w - 40) * m.get("x", 50) / 100.0
+                y = 30 + (h - 50) * m.get("y", 50) / 100.0
+                r = 9
+                dot = canvas.create_oval(x - r, y - r, x + r, y + r,
+                                         fill="#c0392b", outline="#7b241c",
+                                         width=2, tags=("dot",))
+                canvas.create_text(x, y - r - 9, fill="#333",
+                                   font=("Segoe UI", 8),
+                                   text=comp["name"].split("(")[0].strip())
+                canvas.tag_bind(dot, "<Button-1>",
+                                lambda e, c=comp: show(c))
+
+        win.after(50, draw)
+        win.bind("<Configure>", lambda e: draw() if e.widget is win else None)
 
     # ---------- AI setup (no environment variables needed) ----------
     def do_ai_setup(self):

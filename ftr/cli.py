@@ -5,7 +5,7 @@ import time
 from datetime import datetime
 from pathlib import Path
 
-from . import obd, known_issues, modules, feeds, aichat, share
+from . import obd, known_issues, modules, feeds, aichat, share, parts
 from .backup import take_snapshot
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -25,6 +25,7 @@ ford-tdci-recovery
   9. Forum/RSS symptom search
  10. AI assistant (optional, env-configured)
  11. Share anonymized report with community platform
+ 12. Component map / part-number lookup
   0. Exit
 """
 
@@ -47,6 +48,11 @@ def cmd_read_dtcs(ecu):
     for c in codes:
         note = obd.KNOWN_DTC.get(c, "")
         print(f"  {c}  {('- ' + note) if note else ''}")
+        for comp in parts.for_code(c):
+            print(f"      → part: {comp['name']}"
+                  + (f"  ({', '.join(comp['part_numbers'])})"
+                     if comp.get("part_numbers") else ""))
+            print(f"        {comp['location']}")
     return codes
 
 
@@ -179,6 +185,28 @@ def cmd_share(snapshot_path, matched_ids):
             print(f"Upload failed: {e}. Local copy kept.")
 
 
+def cmd_parts(last_dtcs):
+    comps = parts.load()
+    if not comps:
+        print("data/parts.json missing or empty.")
+        return
+    q = input("Component name, symptom or fault code (blank = list all): "
+              ).strip()
+    if not q:
+        for c in comps:
+            print(f"  - {c['name']}")
+        print("\nRun again and type a name/code for full detail.")
+        return
+    hits = parts.for_code(q) or parts.for_symptom(q) or [
+        c for c in comps if q.lower() in c["name"].lower()]
+    if not hits:
+        print("No component match.")
+        return
+    for c in hits:
+        print()
+        print(parts.describe(c))
+
+
 def run(ecu, vehicle=None):
     """ecu: OBD interface; vehicle: module-scan interface (defaults to ecu)."""
     vehicle = vehicle or ecu
@@ -209,6 +237,8 @@ def run(ecu, vehicle=None):
             cmd_ai_chat(snapshot_path)
         elif choice == "11":
             cmd_share(snapshot_path, matched)
+        elif choice == "12":
+            cmd_parts(last_dtcs)
         elif choice == "0":
             break
 
