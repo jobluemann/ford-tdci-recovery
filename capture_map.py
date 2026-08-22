@@ -9,14 +9,16 @@ from ftr.gui import DiagApp
 
 app = DiagApp(simulate=True)
 app.geometry("900x600+40+40")
+app.attributes("-topmost", True)  # stay above other windows for the capture
 app.update()
 
 app.do_map()
 app.update()
+top = [w for w in app.winfo_children() if isinstance(w, tk.Toplevel)][0]
+top.attributes("-topmost", True)
 time.sleep(0.6)
 app.update()  # let the deferred draw() run
 
-top = [w for w in app.winfo_children() if isinstance(w, tk.Toplevel)][0]
 top.lift()
 top.focus_force()
 app.update()
@@ -62,6 +64,7 @@ img3.save(out / "component_map_underside.png")
 # main window with a DTC readout showing part annotation
 top.destroy()  # close the map so the main window is unobstructed
 app.deiconify()
+app.attributes("-topmost", True)
 app.lift()
 app.focus_force()
 app.connect()
