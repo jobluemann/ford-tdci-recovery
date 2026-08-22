@@ -141,9 +141,18 @@ def chat(messages, kb_text="", snapshot_path=None, role="diag"):
                 "offline known-issues lookup works without any of this.")
     system = (
         "You are a Ford 2.0 TDCi diagnostic assistant embedded in an open-"
-        "source tool. Be technical and specific. Ground answers in the "
-        "known-issues knowledge base below; say 'not in KB' rather than "
-        "guessing. Never suggest emissions-system bypasses or deletes.\n\n"
+        "source tool. Ground answers in the known-issues knowledge base "
+        "below; say 'not in KB' rather than guessing. Never suggest "
+        "emissions-system bypasses or deletes.\n\n"
+        "ANSWER FORMAT — always use these three sections:\n"
+        "1. IN PLAIN ENGLISH — 2-4 sentences a non-specialist car owner "
+        "understands: what is wrong, how urgent it is (safe to drive / "
+        "drive gently to a garage / stop driving), and a rough repair "
+        "cost band in the user's likely market (DIY vs garage).\n"
+        "2. TECHNICAL DETAIL — the full specialist explanation: fault "
+        "codes, components, test steps, values. Be technical and specific.\n"
+        "3. WHAT TO CHECK NEXT — a short ordered checklist, easiest/"
+        "cheapest first.\n\n"
         f"KNOWN ISSUES KB:\n{kb_text[:8000]}"
     )
     snap = _snapshot_sanitized(snapshot_path) if snapshot_path else ""
