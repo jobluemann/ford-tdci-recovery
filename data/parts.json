@@ -1,41 +1,104 @@
 {
-  "_comment": "Component catalogue for Ford Kuga 2.0 TDCi (DW10C engine, Mk1/Mk2). Part numbers are sourced from parts catalogues and owner-repair records and MUST be verified against the vehicle VIN (e.g. Ford ETIS) before ordering — supersessions and Euro 5/6 variants differ. Coordinates are percentages (x, y) on the component-map drawing: engine-bay view 0-100.",
+  "_comment": "Component catalogue for Ford Kuga 2.0 TDCi (DW10C engine, Mk1/Mk2). Part numbers are sourced from parts catalogues and owner-repair records and MUST be verified against the vehicle VIN (e.g. Ford ETIS) before ordering \u2014 supersessions and Euro 5/6 variants differ. Coordinates are percentages (x, y) on the component-map drawing: engine-bay view 0-100.",
   "components": [
     {
       "id": "dpf_pressure_sensor",
       "name": "DPF Differential Pressure Sensor",
       "location": "Engine bay, mounted beside the air filter housing / near the battery box; two rubber hoses run down to the DPF",
-      "part_numbers": ["3M5A-5L200-AB", "AV61-5L200-AA", "AV61-5L200-AB"],
-      "superseded_by": ["BK21-5H295-AC", "1786775"],
-      "cross_refs": ["1315684", "1415606"],
-      "fault_codes": ["P2002", "P2452", "P2453", "P2463"],
-      "symptoms": ["limp mode", "dpf warning", "no regeneration"],
-      "app_tests": ["Read fault codes", "Live DPF pressure"],
-      "map": {"view": "engine_bay", "x": 18, "y": 30}
+      "part_numbers": [
+        "3M5A-5L200-AB",
+        "AV61-5L200-AA",
+        "AV61-5L200-AB"
+      ],
+      "superseded_by": [
+        "BK21-5H295-AC",
+        "1786775"
+      ],
+      "cross_refs": [
+        "1315684",
+        "1415606"
+      ],
+      "fault_codes": [
+        "P2002",
+        "P2452",
+        "P2453",
+        "P2463"
+      ],
+      "symptoms": [
+        "limp mode",
+        "dpf warning",
+        "no regeneration"
+      ],
+      "app_tests": [
+        "Read fault codes",
+        "Live DPF pressure"
+      ],
+      "map": {
+        "view": "engine_bay",
+        "x": 18,
+        "y": 30
+      }
     },
     {
       "id": "dpf_hoses",
       "name": "DPF Pressure Hoses (rubber/silicone pair)",
-      "location": "From the pressure sensor down to the DPF pipe unions — check for splits, chafing, soot blockage",
+      "location": "From the pressure sensor down to the DPF pipe unions \u2014 check for splits, chafing, soot blockage",
       "part_numbers": [],
       "superseded_by": [],
       "cross_refs": [],
-      "fault_codes": ["P2452", "P2463"],
-      "symptoms": ["limp mode", "false dpf full readings"],
-      "app_tests": ["Live DPF pressure (flat/zero reading = hose fault)"],
-      "map": {"view": "engine_bay", "x": 22, "y": 52}
+      "fault_codes": [
+        "P2452",
+        "P2463"
+      ],
+      "symptoms": [
+        "limp mode",
+        "false dpf full readings"
+      ],
+      "app_tests": [
+        "Live DPF pressure (flat/zero reading = hose fault)"
+      ],
+      "map": {
+        "view": "engine_bay",
+        "x": 22,
+        "y": 52
+      }
     },
     {
       "id": "fuel_vaporizer",
       "name": "Fuel Vaporizer (DPF regeneration doser)",
       "location": "In the exhaust stream upstream of the DPF, under the car",
-      "part_numbers": ["1748653", "1693636"],
-      "superseded_by": ["1860939", "1877097", "CV61-9T540-AB", "1856982"],
-      "cross_refs": ["AV61-9T540-B"],
-      "fault_codes": ["P246B", "P24A4", "P2463"],
-      "symptoms": ["regeneration never completes", "limp mode", "dpf codes return after cleaning"],
-      "app_tests": ["Read fault codes", "Live DPF temperature during regen"],
-      "map": {"view": "underside", "x": 45, "y": 70}
+      "part_numbers": [
+        "1748653",
+        "1693636"
+      ],
+      "superseded_by": [
+        "1860939",
+        "1877097",
+        "CV61-9T540-AB",
+        "1856982"
+      ],
+      "cross_refs": [
+        "AV61-9T540-B"
+      ],
+      "fault_codes": [
+        "P246B",
+        "P24A4",
+        "P2463"
+      ],
+      "symptoms": [
+        "regeneration never completes",
+        "limp mode",
+        "dpf codes return after cleaning"
+      ],
+      "app_tests": [
+        "Read fault codes",
+        "Live DPF temperature during regen"
+      ],
+      "map": {
+        "view": "underside",
+        "x": 36,
+        "y": 68
+      }
     },
     {
       "id": "dpf_filter",
@@ -44,22 +107,51 @@
       "part_numbers": [],
       "superseded_by": [],
       "cross_refs": [],
-      "fault_codes": ["P2002", "P2463"],
-      "symptoms": ["limp mode", "loss of power", "high backpressure"],
-      "app_tests": ["Live DPF pressure + soot load", "Read fault codes"],
-      "map": {"view": "underside", "x": 55, "y": 70}
+      "fault_codes": [
+        "P2002",
+        "P2463"
+      ],
+      "symptoms": [
+        "limp mode",
+        "loss of power",
+        "high backpressure"
+      ],
+      "app_tests": [
+        "Live DPF pressure + soot load",
+        "Read fault codes"
+      ],
+      "map": {
+        "view": "underside",
+        "x": 64,
+        "y": 68
+      }
     },
     {
       "id": "pcm",
       "name": "PCM / ECM (Powertrain Control Module)",
-      "location": "Engine bay, bulkhead side. Calibration is VIN-specific — replacement units must be programmed to the car",
+      "location": "Engine bay, bulkhead side. Calibration is VIN-specific \u2014 replacement units must be programmed to the car",
       "part_numbers": [],
       "superseded_by": [],
       "cross_refs": [],
-      "fault_codes": ["U-codes", "P0600-series"],
-      "symptoms": ["lost adaptations after battery change", "multiple unrelated codes", "no module comms"],
-      "app_tests": ["Module scan", "Read fault codes", "Backup identity"],
-      "map": {"view": "engine_bay", "x": 78, "y": 18}
+      "fault_codes": [
+        "U-codes",
+        "P0600-series"
+      ],
+      "symptoms": [
+        "lost adaptations after battery change",
+        "multiple unrelated codes",
+        "no module comms"
+      ],
+      "app_tests": [
+        "Module scan",
+        "Read fault codes",
+        "Backup identity"
+      ],
+      "map": {
+        "view": "engine_bay",
+        "x": 78,
+        "y": 18
+      }
     },
     {
       "id": "battery_bms",
@@ -69,9 +161,19 @@
       "superseded_by": [],
       "cross_refs": [],
       "fault_codes": [],
-      "symptoms": ["stop-start dead after new battery", "charging faults", "odd warnings after battery swap"],
-      "app_tests": ["Post-battery checklist"],
-      "map": {"view": "engine_bay", "x": 12, "y": 68}
+      "symptoms": [
+        "stop-start dead after new battery",
+        "charging faults",
+        "odd warnings after battery swap"
+      ],
+      "app_tests": [
+        "Post-battery checklist"
+      ],
+      "map": {
+        "view": "engine_bay",
+        "x": 12,
+        "y": 68
+      }
     },
     {
       "id": "powershift_mechatronic",
@@ -80,46 +182,97 @@
       "part_numbers": [],
       "superseded_by": [],
       "cross_refs": [],
-      "fault_codes": ["P0715", "P0730", "P0702", "P2770"],
-      "symptoms": ["scratching between 1st-2nd-3rd", "harsh engagement", "gearbox warning"],
-      "app_tests": ["Read fault codes (TCM)", "Module scan"],
-      "map": {"view": "engine_bay", "x": 60, "y": 75}
+      "fault_codes": [
+        "P0715",
+        "P0730",
+        "P0702",
+        "P2770"
+      ],
+      "symptoms": [
+        "scratching between 1st-2nd-3rd",
+        "harsh engagement",
+        "gearbox warning"
+      ],
+      "app_tests": [
+        "Read fault codes (TCM)",
+        "Module scan"
+      ],
+      "map": {
+        "view": "engine_bay",
+        "x": 60,
+        "y": 75
+      }
     },
     {
       "id": "haldex_dem",
       "name": "AWD DEM (Haldex Control Module) + Pump",
       "location": "Bolted to the Haldex coupling on the rear differential, under the rear of the car",
-      "part_numbers": ["5WP33531-02"],
+      "part_numbers": [
+        "5WP33531-02"
+      ],
       "superseded_by": [],
-      "cross_refs": ["114793-01"],
-      "fault_codes": ["P1889"],
-      "symptoms": ["awd not engaging", "awd malfunction message (or silent failure)", "rear wheels never driven"],
-      "app_tests": ["Module scan", "Read fault codes (AWD)"],
-      "map": {"view": "underside", "x": 82, "y": 70}
+      "cross_refs": [
+        "114793-01"
+      ],
+      "fault_codes": [
+        "P1889"
+      ],
+      "symptoms": [
+        "awd not engaging",
+        "awd malfunction message (or silent failure)",
+        "rear wheels never driven"
+      ],
+      "app_tests": [
+        "Module scan",
+        "Read fault codes (AWD)"
+      ],
+      "map": {
+        "view": "underside",
+        "x": 86,
+        "y": 62
+      }
     },
     {
       "id": "rear_diff_oil",
       "name": "Rear Differential / Haldex Oil",
-      "location": "Rear final drive — hypoid gear oil SAE 80W-90F; Haldex clutch oil is a separate fill",
-      "part_numbers": ["4U7J-M2C197-AA"],
+      "location": "Rear final drive \u2014 hypoid gear oil SAE 80W-90F; Haldex clutch oil is a separate fill",
+      "part_numbers": [
+        "4U7J-M2C197-AA"
+      ],
       "superseded_by": [],
-      "cross_refs": ["1349065"],
+      "cross_refs": [
+        "1349065"
+      ],
       "fault_codes": [],
-      "symptoms": ["awd wear", "haldex pump strain", "judder on full lock"],
+      "symptoms": [
+        "awd wear",
+        "haldex pump strain",
+        "judder on full lock"
+      ],
       "app_tests": [],
-      "map": {"view": "underside", "x": 82, "y": 80}
+      "map": {
+        "view": "underside",
+        "x": 68,
+        "y": 86
+      }
     },
     {
       "id": "obd_port",
       "name": "OBD-II Diagnostic Port (16-pin)",
-      "location": "Driver footwell, above the pedals — where the ELM327 adapter plugs in",
+      "location": "Driver footwell, above the pedals \u2014 where the ELM327 adapter plugs in",
       "part_numbers": [],
       "superseded_by": [],
       "cross_refs": [],
       "fault_codes": [],
       "symptoms": [],
-      "app_tests": ["All functions connect here"],
-      "map": {"view": "engine_bay", "x": 90, "y": 88}
+      "app_tests": [
+        "All functions connect here"
+      ],
+      "map": {
+        "view": "engine_bay",
+        "x": 90,
+        "y": 88
+      }
     }
   ]
 }
