@@ -20,8 +20,13 @@ Mint .deb or run-from-folder, adapter pairing, AI + voice setup.
 
 ## See it running
 
-Every screenshot below is the **real app**, captured against the built-in
-simulated car:
+**Full simulation session** (connect → backup → fault codes with part
+annotation → module scan → live DPF → component map), recorded from the
+real app against the built-in fake car — no hardware needed:
+
+![Simulation demo — full session](docs/screenshots/simulation_demo.gif)
+
+Stills:
 
 ![Main window — dark digital console, fault codes annotated with parts](docs/screenshots/main_window_dtc_parts.png)
 
